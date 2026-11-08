@@ -148,7 +148,7 @@ export function StorybookTransition({ origin }: { origin: Origin }) {
         </div>
 
         <div className="_storybook-transition-caption">
-          <strong>ERS Storybook</strong>
+          <strong>cERS Storybook</strong>
           <span>컴포넌트 문서로 이동하고 있어요</span>
         </div>
       </div>

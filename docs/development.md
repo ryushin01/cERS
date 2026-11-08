@@ -63,7 +63,7 @@ pnpm run dev
 │ ├── 🗂️ icons                                // svg 아이콘 (logo: 헤더 로고)
 │ ├── 🗂️ images                               // 이미지 파일 (logo: 앱 아이콘 PNG)
 │ ├── 🗂️ storybook                            // Storybook 빌드 결과물 (빌드 시 생성, 저장소 미포함)
-│ └── 🏙️ logo.svg                             // 파비콘 (ERS 심볼)
+│ └── 🏙️ logo.svg                             // 파비콘 (cERS 심볼)
 │
 ├── 🗂️ src
 │ ├── 🗂️ app                                  // 라우팅 관련 파일
@@ -130,7 +130,7 @@ pnpm run dev
 
 ### 프론트엔드 기준
 
-새 프로젝트의 프론트엔드 개발은 아래 기준을 따릅니다. 마크업·접근성·ARIA 기준은 ERS에도 적용합니다.
+새 프로젝트의 프론트엔드 개발은 아래 기준을 따릅니다. 마크업·접근성·ARIA 기준은 cERS에도 적용합니다.
 
 | 기준 | 내용 |
 |---|---|
@@ -139,7 +139,7 @@ pnpm run dev
 | 접근성 | 한국형 웹 콘텐츠 접근성 지침(KWCAG) 2.2, KS X OT0003. 4원칙 14지침 33개 검사항목 |
 | ARIA | [WAI-ARIA 1.2](https://www.w3.org/TR/wai-aria-1.2/)와 [ARIA 사용 규칙](https://www.w3.org/TR/using-aria/). 네이티브 HTML을 우선하고, 역할을 지정하면 키보드 동작까지 구현합니다. |
 
-> **ERS 코드는 FSD 구조가 아니며, 그대로 유지합니다.** `src/components`가 화면별로 나뉘어 있고, 공통 컴포넌트 일부가 `services`·`stores`를 직접 사용합니다. FSD는 새 프로젝트의 기준입니다.
+> **cERS 코드는 FSD 구조가 아니며, 그대로 유지합니다.** `src/components`가 화면별로 나뉘어 있고, 공통 컴포넌트 일부가 `services`·`stores`를 직접 사용합니다. FSD는 새 프로젝트의 기준입니다.
 > 자동 검사(axe)를 통과했다고 KWCAG를 준수한다는 뜻은 아닙니다. axe는 33개 항목 중 일부만 확인할 수 있어, 새 화면은 항목별로 직접 점검합니다.
 
 ### import 순서와 커밋 전 검사

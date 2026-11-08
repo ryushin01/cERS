@@ -5,6 +5,6 @@ services:
     build:
       context: ../../
       dockerfile: docker/production/Dockerfile
-    image: with-docker-ers-production
+    image: with-docker-cers-production
     ports:
       - "0.0.0.0:3000:3000"

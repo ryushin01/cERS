@@ -13,10 +13,10 @@ test("바로 가기를 누르면 전환 화면을 거쳐 Storybook으로 이동�
   await page.waitForURL(/\/storybook\/index\.html/);
   await expect(page.locator("html.ers-arrive")).toHaveCount(1);
 
-  // 도착 후: 애니메이션이 끝나고 소개 문서와 ERS 로고가 표시됨
+  // 도착 후: 애니메이션이 끝나고 소개 문서와 cERS 로고가 표시됨
   await expect(page.locator("html.ers-arrive")).toHaveCount(0, { timeout: 5_000 });
   await expect(
-    page.frameLocator("#storybook-preview-iframe").getByRole("heading", { name: "ERS Storybook" }),
+    page.frameLocator("#storybook-preview-iframe").getByRole("heading", { name: "cERS Storybook" }),
   ).toBeVisible({ timeout: 30_000 });
   const brandLogo = page.locator('img[src$="Logo.svg"]').first();
   await expect(brandLogo).toBeVisible();

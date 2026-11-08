@@ -17,7 +17,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
   return (
     <html lang="ko">
       <body>
-        <title>일시적인 오류 - ERS</title>
+        <title>일시적인 오류 - cERS</title>
         <ErrorNotice onReset={reset} />
       </body>
     </html>
