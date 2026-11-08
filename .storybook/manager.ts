@@ -1,11 +1,11 @@
 import { addons } from "storybook/manager-api";
 import { create } from "storybook/theming";
 
-/* Storybook 화면(사이드바·툴바)을 ERS 브랜드 색상과 로고로 맞춥니다. */
+/* Storybook 화면(사이드바·툴바)을 cERS 브랜드 색상과 로고로 맞춥니다. */
 addons.setConfig({
   theme: create({
     base: "light",
-    brandTitle: "ERS Storybook - 전자등기 관리 시스템",
+    brandTitle: "cERS Storybook - 전자등기 관리 시스템",
     brandUrl: "/",
     brandImage: "./icons/logo/Logo.svg",
     brandTarget: "_self",
