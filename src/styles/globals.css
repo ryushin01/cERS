@@ -14,7 +14,10 @@
 
     html,
     body {
-        font-family: "pretendard", system-ui, Arial, sans-serif;
+        /* 대체 글꼴: 업무 화면이라 운영체제의 한글 고딕과 UI 글꼴로 차분하게 잇습니다. */
+        font-family:
+            "pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", system-ui,
+            "Segoe UI", Arial, sans-serif;
         @apply text-ers-grayscale-100;
     }
 
