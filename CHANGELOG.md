@@ -2,6 +2,7 @@
 
 | 버전     | 날짜         | 내용                                                           | 비고            |
 |--------|------------|--------------------------------------------------------------|---------------|
+| v2.1.2 | 2026.11.13. | - 세션에 저장된 로그인 정보가 손상되면 요청 인터셉터의 `JSON.parse`가 던져 모든 API 요청이 실패하던 문제 수정(`readAccessToken`이 빈 토큰으로 처리)<br>- 세션 키 `auth`를 `AUTH_STORAGE_KEY` 상수로 모아 로그인 저장·요청·로그아웃이 같은 키를 쓰게 정리 | N/A |
 | v2.1.1 | 2026.11.5. | - Next.js 16의 React Hooks lint 규칙을 다시 켜고 42건을 정리(이펙트에서 상태를 맞추던 코드를 렌더링 중 조정으로 변경, `useAdjustState`·`useIsClient` 추가)<br>- 사진 파일 이름의 시각을 렌더링 시점이 아니라 촬영 시점으로 변경<br>- `file-uploader.css`의 동작하지 않던 잘못된 선택자 삭제, `spinner.css`에서 덮어써져 쓰이지 않던 `animate-spin` 삭제 | N/A |
 | v2.1.0 | 2026.11.5. | - Next.js 16으로 업그레이드, `middleware`를 `proxy`로 변경 | N/A |
 | v2.0.10 | 2026.11.5. | - Storybook 소개 문서의 표가 글자 그대로 나오던 문제 수정(`remark-gfm` 연결), 소제목 굵기 복원<br>- Storybook 메뉴를 Foundations·Components·Patterns·Pages 구조로 재구성하고, 작은 부품에서 조립된 화면 순서로 정렬(스토리 주소 변경)<br>- README Storybook 스크린샷 갱신 | N/A |

@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import { appURI, isDemoMode } from "@constants/env";
+import { readAccessToken } from "@stores/authStore";
 import { mockAdapter } from "@/mocks/adapter";
 
 /**
@@ -60,8 +61,7 @@ axiosBasicInstance.interceptors.request.use(
   function (config) {
     if (!config.headers) return config;
 
-    const auth = sessionStorage.getItem("auth");
-    const accessToken = auth ? JSON.parse(auth)?.accessToken : null;
+    const accessToken = readAccessToken();
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
