@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import { isDemoMode } from "@constants/env";
 import { LOGIN_PATH } from "@constants/path";
 import { postLogout } from "@services/login";
-import { toastState } from "@stores";
+import { AUTH_STORAGE_KEY, toastState } from "@stores";
 
 type UseLogoutOptions = {
   /* 로그인 정보 삭제 직후 실행할 동작 (예: 기본 프로필 이미지로 전환) */
@@ -36,7 +36,7 @@ export default function useLogout({ onLoggedOut, toastPosition = "top" }: UseLog
   const openToast = useSetAtom(toastState);
 
   const clearLoginInfo = () => {
-    sessionStorage.removeItem("auth");
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
     Cookies.remove("membGbCd");
     onLoggedOut?.();
   };
