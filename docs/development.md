@@ -158,6 +158,7 @@ pnpm run dev
 - 금액 입력은 `utils/amountUtil`로 처리합니다: 원 단위 정수만(부호·소수점·문자 무시), 최대 15자리, 0원은 제출 불가. 저장 요청 버튼은 `useSubmitLock`으로 중복 제출을 막습니다.
 - 저장 요청은 보낼 데이터를 `mutate(데이터)`로 직접 넘깁니다. (상태를 바꾼 직후 `mutate()`를 호출하고 `mutationFn`이 상태를 읽으면, 실행 시점에 따라 이전 값이 전송될 수 있음)
 - 처리 사유(반려·진행취소·보완요청)에서 "기타"는 코드 `99`이고, 직접 입력한 문구를 보냅니다(`codeUtil.getReasonText`).
+- 로그인 정보는 `sessionStorage`의 `AUTH_STORAGE_KEY`(`src/stores/authStore.ts`)에 둡니다. 저장·요청·로그아웃 모두 이 상수를 쓰고, 요청 인터셉터는 `readAccessToken()`으로 토큰을 읽습니다. 값이 손상되었으면 빈 토큰으로 보고 로그아웃 상태로 요청합니다.
 
 ### 단위 테스트
 
