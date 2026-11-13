@@ -124,4 +124,5 @@ src/
 | [Storybook](docs/storybook.md) | 구성, 스토리 테스트, 배포, 바로 가기 버튼 |
 | [CI · Docker](docs/ci-docker.md) | GitHub Actions, Dependabot, Docker |
 | [에디터 설정](docs/editor-setup.md) | IntelliJ, VS Code |
+| [시퀀스 다이어그램](docs/sequence-diagrams.md) | 로그인과 화면 이동, API 요청 경로(목업 어댑터), 관리자 배정 등록 |
 | [버전 기록](CHANGELOG.md) | 버전별 변경 내용 |
