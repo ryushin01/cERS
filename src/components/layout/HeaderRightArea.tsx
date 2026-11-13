@@ -108,7 +108,6 @@ export default function HeaderRightArea() {
       sessionStorage.setItem(ADMIN_SEARCH_RQSTNO_KEY, searchRqstNo);
     }
     // 목록 화면이 처음 열릴 때 위에 저장한 번호를 읽으므로, 같은 화면에서도 새로 열리도록 전체를 다시 불러옵니다.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = `${movePath}`;
   };
 

@@ -24,7 +24,7 @@ export default defineConfig({
       /*
        * 단위·통합 테스트 (pnpm test, 커밋 전 검사)
        * - tsconfig.json의 paths(@components, @hooks, @icons24 등)를 그대로 읽습니다.
-       * - 기본은 브라우저 환경(jsdom)입니다. 서버 코드(proxy 등)는 파일 맨 위에 `// @vitest-environment node`를 적습니다.
+       * - 기본은 브라우저 환경(jsdom)입니다. 서버 코드(middleware 등)는 파일 맨 위에 `// @vitest-environment node`를 적습니다.
        */
       {
         plugins: [tsconfigPaths(), react()],

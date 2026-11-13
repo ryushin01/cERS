@@ -1,7 +1,14 @@
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
-import nextTypescript from "eslint-config-next/typescript";
-import prettier from "eslint-config-prettier";
+import { FlatCompat } from "@eslint/eslintrc";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
 
 /**
  * 내부 모듈 alias (tsconfig.json의 paths).
@@ -38,8 +45,7 @@ const eslintConfig = [
       "playwright-report/**",
     ],
   },
-  ...nextCoreWebVitals,
-  ...nextTypescript,
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     // import 순서 자동 정렬. `pnpm lint:fix`로 자동 수정되고, 커밋할 때 lint-staged가 실행합니다.
     // 순서: react → next → 외부 패키지 → 내부 alias → 상대경로 → import type → 사이드 이펙트(CSS 등)
@@ -65,7 +71,7 @@ const eslintConfig = [
     },
   },
   // 서식 관련 ESLint 규칙을 끄는 설정이라 항상 마지막에 둡니다.
-  prettier,
+  ...compat.extends("prettier"),
 ];
 
 export default eslintConfig;

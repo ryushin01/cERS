@@ -26,7 +26,7 @@ pnpm install
 pnpm run dev
 ```
 
-> Next.js 16은 Node.js 20.9 이상, Storybook 10은 Node.js 20.19 이상이 필요합니다. 저장소 기준인 Node.js 22를 사용하세요.
+> Next.js 15는 Node.js 18.18 이상, Storybook 10은 Node.js 20.19 이상이 필요합니다. 저장소 기준인 Node.js 22를 사용하세요.
 
 ## 주요 스크립트
 
@@ -103,7 +103,7 @@ pnpm run dev
 │ ├── 🗂️ styles                               // 전역 및 모듈화된 스타일 파일
 │ ├── 🗂️ types                                // 공용 타입 (common, file, home, assign)
 │ ├── 🗂️ utils                                // 공통 유틸리티 함수
-│ └── 📄 proxy.ts                             // 사용자 유형(membGbCd)별 접근 경로 제어
+│ └── 📄 middleware.ts                        // 사용자 유형(membGbCd)별 접근 경로 제어
 │
 ├── 📄 eslint.config.mjs                      // ESLint 설정 (import 정렬 규칙 포함)
 ├── 📄 tailwind.config.ts                     // 디자인 토큰(색상·z-index 등), 공통 클래스(_flex-center) 플러그인
@@ -174,7 +174,7 @@ pnpm run dev
 | 종류 | 위치 | 내용 |
 |---|---|---|
 | 단위 | `utils`, `hooks`, `stores`, `components/button`, `components/modal`, `components/login` | 유틸 함수, 커스텀 훅(화면 크기 판단은 첫 렌더링부터 맞는지 포함), 토스트, Button, 모달 접근성, Storybook 바로 가기(전환 후 이동·중복 클릭·동작 줄이기·새 탭) |
-| 라우팅 | `proxy.test.ts` | 사용자 유형별 접근 경로 리다이렉트, Storybook 경로 통과 |
+| 라우팅 | `middleware.test.ts` | 사용자 유형별 접근 경로 리다이렉트, Storybook 경로 통과 |
 | API 요청 | `services/services.test.ts` | services가 만드는 요청(메서드·주소·쿼리·본문). 검색어에 `&`·`#` 같은 문자가 있어도 그대로 전달되는지 |
 | 데모 데이터 | `mocks/data.test.ts`, `mocks/adapter.test.ts` | 목업 데이터가 업무 규칙과 맞는지, 목업 API의 응답·상태 변경 |
 | 화면 통합 | `components/**/Main.test.tsx` | 화면을 실제 데이터 흐름(TanStack Query → services → 목업 API)으로 렌더링해 목록·건수가 데이터와 같은지 |
@@ -189,7 +189,7 @@ pnpm run dev
 - 오류 화면: 페이지별 `CustomErrorBoundary`가 먼저 받고, 그 바깥이나 바운더리가 없는 페이지의 오류는 `app/error.tsx`, 루트 레이아웃 오류는 `app/global-error.tsx`가 받습니다. 없는 주소는 `app/not-found.tsx`입니다.
 - 화면 통합 테스트는 `src/test/renderWithProviders.tsx`(QueryClient·jotai Provider, PC 화면 `matchMedia`)를 쓰고, `next/navigation`은 테스트 파일에서 `vi.mock`으로 대신합니다.
 - tsconfig의 alias를 그대로 쓸 수 있습니다(`vite-tsconfig-paths`).
-- 서버 코드(`proxy.ts` 등)를 테스트할 때는 파일 맨 위에 `// @vitest-environment node`를 적습니다.
+- 서버 코드(`middleware.ts` 등)를 테스트할 때는 파일 맨 위에 `// @vitest-environment node`를 적습니다.
 - 테스트는 실행하는 PC의 시간대와 상관없이 같은 결과가 나오도록 작성합니다. 날짜 유틸은 테스트 안에서 여러 시간대(`process.env.TZ`)로 바꿔 가며 확인합니다.
 
 ### E2E 테스트
