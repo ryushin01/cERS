@@ -11,7 +11,6 @@ import { DatePicker, Loading, Typography } from "@components/common";
 import { CurrencyFormat, Form, InputField, Label, Radio, Select, TextArea } from "@components/form";
 import { Grid, GridItem } from "@components/layout";
 import { REALE_CD } from "@constants/code";
-import { FILE_MAXIMUM_NUMBER, FILE_MAXIMUM_SIZE, FILE_MAXIMUM_SIZE_STRING } from "@constants/file";
 import { LAND_LOT_OPTION } from "@constants/option";
 import { AD_ASSIGN } from "@constants/path";
 import {
@@ -31,6 +30,7 @@ import { isAddressFormComplete } from "@utils/addressUtil";
 import { formatAmountInput, isValidAmount, parseAmount } from "@utils/amountUtil";
 import { getBankOptions, getCodeList, getMemberOptions } from "@utils/codeUtil";
 import { getDateString } from "@utils/dateUtil";
+import { getAttachmentLimitMessage } from "@utils/fileUtil";
 
 import AddressSearchModal from "../AddressSearchModal";
 import EmptyBox from "./EmptyBox";
@@ -464,25 +464,10 @@ export default function CreateForm() {
       return;
     }
 
-    // 첨부 가능 개수 제어
-    if (imageList.length > FILE_MAXIMUM_NUMBER) {
-      openToast({
-        message: `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.`,
-        position: "top",
-      });
-
-      return;
-    }
-
-    // 첨부 가능 용량 제어
-    const totalMemory = imageList.reduce((total, file) => total + file.size, 0);
-
-    if (totalMemory > FILE_MAXIMUM_SIZE) {
-      openToast({
-        message: `업로드 가능한 전체 용량은 최대 ${FILE_MAXIMUM_SIZE_STRING}입니다.`,
-        position: "top",
-      });
-
+    // 첨부 개수·전체 용량 제한
+    const limitMessage = getAttachmentLimitMessage(imageList);
+    if (limitMessage) {
+      openToast({ message: limitMessage, position: "top" });
       return;
     }
 
@@ -505,25 +490,10 @@ export default function CreateForm() {
   };
 
   useEffect(() => {
-    // 첨부 가능 개수 제어
-    if (imageList.length > FILE_MAXIMUM_NUMBER) {
-      openToast({
-        message: `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.`,
-        position: "top",
-      });
-
-      return;
-    }
-
-    // 첨부 가능 용량 제어
-    const totalMemory = imageList.reduce((total, file) => total + file.size, 0);
-
-    if (totalMemory > FILE_MAXIMUM_SIZE) {
-      openToast({
-        message: `업로드 가능한 전체 용량은 최대 ${FILE_MAXIMUM_SIZE_STRING}입니다.`,
-        position: "top",
-      });
-
+    // 첨부 개수·전체 용량 제한
+    const limitMessage = getAttachmentLimitMessage(imageList);
+    if (limitMessage) {
+      openToast({ message: limitMessage, position: "top" });
       return;
     }
 

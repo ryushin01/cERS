@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -9,13 +9,7 @@ import { Button } from "@components/button";
 import { DatePicker, Loading, Typography } from "@components/common";
 import { CurrencyFormat, Form, InputField, Label, Radio, Select, TextArea } from "@components/form";
 import { Grid, GridItem } from "@components/layout";
-import { Modal } from "@components/modal";
-import { PROC_CLS_GB_CD, SPPL_REQ_GB_CD } from "@constants/code";
 import { FILE_MAXIMUM_NUMBER } from "@constants/file";
-import {
-  CANCEL_PROGRESS_INFORMATION_LIST,
-  SUPPLEMENT_REQUEST_INFORMATION_LIST,
-} from "@constants/information";
 import { LAND_LOT_OPTION } from "@constants/option";
 import { AD_ASSIGN } from "@constants/path";
 import {
@@ -26,13 +20,7 @@ import {
   useRadio,
   useSubmitLock,
 } from "@hooks";
-import {
-  getUnqRgsrtNo,
-  patchAccignmentForm,
-  patchRegiCancel,
-  patchRegiSupplement,
-} from "@services/assignDetail";
-import { getCommonCodeList } from "@services/common";
+import { getUnqRgsrtNo, patchAccignmentForm } from "@services/assignDetail";
 import { authAtom, toastState } from "@stores";
 import { isAddressFormComplete } from "@utils/addressUtil";
 import { formatAmountInput, isValidAmount, parseAmount } from "@utils/amountUtil";
@@ -40,6 +28,7 @@ import { getCodeList, getMemberOptions } from "@utils/codeUtil";
 import { getDateString } from "@utils/dateUtil";
 
 import AddressSearchModal from "../AddressSearchModal";
+import ProcessReasonModal from "./ProcessReasonModal";
 
 import type { AssignDetailForm } from "@types";
 
@@ -89,16 +78,12 @@ export default function Table({
   const { ...datePickerProps } = useDatePicker();
   const openToast = useSetAtom(toastState);
   const [price, setPrice] = useState("");
-  const [selectSupplementRequest, setSelectedSupplementRequest] = useState("");
-  const [selectCancelProgress, setSelectedCancelProgress] = useState("");
   const [radioValue, handleRadio] = useRadio("01");
   const [unqRgstrNo, setUnqRgstrNo] = useState("");
   const [dbtrNM, setDbtrNM] = useState("");
   const [contractDate, setContractDate] = useState<Date | null>();
   const [seDate, setSeDate] = useState("");
   const [lgagDlvrCnts, setLgagDlvrCnts] = useState("");
-  const [spplError, setSpplError] = useState(false);
-  const [cnclError, setCnclError] = useState(false);
   const [addrError, setAddrError] = useState(false);
   const [unqRgstrNoError, setUnqRgstrNoError] = useState(false);
   const [isPricesError, setIsPricesError] = useState(false);
@@ -106,10 +91,6 @@ export default function Table({
   const [isContractDateError, setIsContractDateError] = useState(false);
   // const [isSelectLawyer , setIsSelectLawyer] = useState(false);
   const [requestData, setRequestData] = useState<FormData>();
-  const [form, setForm] = useState({
-    rqstNo: requstNo,
-    procRsnCnts: "",
-  });
   const [addrForm, setAddrForm] = useState({
     roadAddr: "",
     rdnmAddr: "",
@@ -152,30 +133,6 @@ export default function Table({
     setIsPricesError(false); // 필수 인풋 에러 해제
   };
 
-  /* 보완요청 사유 조회 api*/
-  const {
-    data: spplReqCdData,
-    refetch: petchSpplReqCdData,
-    isLoading: spplReqCdLoading,
-  } = useQuery({
-    queryKey: ["search-spplcode"],
-    queryFn: async () => await getCommonCodeList(SPPL_REQ_GB_CD),
-    select: (response) => response.data,
-    enabled: false,
-  });
-
-  /* 진행취소 사유 조회 api */
-  const {
-    data: procCancelCdData,
-    refetch: petchProcCancelCdData,
-    isLoading: procCancelCdLoading,
-  } = useQuery({
-    queryKey: ["search-canclecode"],
-    queryFn: async () => await getCommonCodeList(PROC_CLS_GB_CD),
-    select: (response) => response.data,
-    enabled: false,
-  });
-
   /* 고유번호조회 api */
   const {
     data: unqRgstrNoData,
@@ -205,66 +162,8 @@ export default function Table({
     enabled: false,
   });
 
-  /* 보완요청 진행요청 api */
-  // 중복 제출 방지 (보완요청·진행취소·배정하기). 실패 시에만 다시 제출 가능
-  const supplementLock = useSubmitLock();
-  const cancelLock = useSubmitLock();
+  // 중복 제출 방지. 실패 시에만 다시 제출 가능 (보완요청·진행취소는 ProcessReasonModal이 맡음)
   const assignLock = useSubmitLock();
-
-  const { mutate: regiSupplement } = useMutation({
-    mutationKey: ["registration-supplement", requstNo],
-    // 요청 데이터는 mutate 인자로 직접 받음 (상태를 바꾼 직후 호출해도 항상 방금 만든 값을 전송)
-    mutationFn: async (payload: Parameters<typeof patchRegiSupplement>[0]) =>
-      await patchRegiSupplement(payload),
-    onSuccess: (res) => {
-      if (res.code === "00") {
-        // 1. 셀렉트 초기화 & 모달 닫기
-        setSelectedSupplementRequest("");
-        closeSupplementRequestModal();
-
-        // 2. 토스트팝업 노출 & 배정관리 페이지로 이동
-        openToast({
-          message: "보완 요청이 완료되었습니다.",
-          position: "top",
-        });
-        router.push(AD_ASSIGN);
-      } else {
-        supplementLock.unlock();
-      }
-    },
-    onError: (error) => {
-      supplementLock.unlock();
-      console.error(error);
-    },
-  });
-
-  /* 진행취소 진행 요청 api */
-  const { mutate: regiCancel } = useMutation({
-    mutationKey: ["registration-cancel", requstNo],
-    // 요청 데이터는 mutate 인자로 직접 받음 (상태를 바꾼 직후 호출해도 항상 방금 만든 값을 전송)
-    mutationFn: async (payload: Parameters<typeof patchRegiCancel>[0]) =>
-      await patchRegiCancel(payload),
-    onSuccess: (res) => {
-      if (res.code === "00") {
-        // 1. 셀렉트 초기화 & 모달 닫기
-        setSelectedCancelProgress("");
-        closeCancelProgressModal();
-
-        // 2. 토스트팝업 노출 & 배정관리 페이지로 이동
-        openToast({
-          message: "진행취소 상태로 변경되었습니다.",
-          position: "top",
-        });
-        router.push(AD_ASSIGN);
-      } else {
-        cancelLock.unlock();
-      }
-    },
-    onError: (error) => {
-      cancelLock.unlock();
-      console.error(error);
-    },
-  });
 
   /* 배정하기 진행요청 api */
   const { mutate: patchAccignmentsubmit } = useMutation({
@@ -288,169 +187,6 @@ export default function Table({
       console.error(error);
     },
   });
-
-  /* ----- [보완요청 시작] ----- */
-  /* 1. 보완요청 버튼 클릭시 api 호출 모달오픈 */
-  const searchSpplReqCd = () => {
-    petchSpplReqCdData();
-    if (!spplReqCdLoading) {
-      openSupplementRequestModal();
-    }
-  };
-
-  /* 2. 보완요청 셀렉트 option data */
-  const SUPPLEMENT_REQUEST_OPTION = getCodeList(spplReqCdData?.data?.commCodeList);
-
-  /* 3. 보완요청 셀렉트박스 onChange */
-  const handleSupplementChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value;
-
-    setSpplError(false);
-    setSelectedSupplementRequest(selectedValue);
-
-    const selectedOption = SUPPLEMENT_REQUEST_OPTION.find(
-      (option) => option.value === selectedValue,
-    );
-
-    if (selectedOption && selectedValue) {
-      setForm((prevForm) => ({
-        ...prevForm,
-        rqstNo: requstNo,
-        procRsnCnts: selectedValue === "99" ? "" : selectedOption?.label, // "99"이면 입력을 기다림, 아니면 선택한 값 저장
-      }));
-    }
-  };
-
-  /* 4. 보완요청 Form onChange */
-  const spplFormMonitor = (e: ChangeEvent<HTMLFormElement>) => {
-    const targetValue = e.target.value;
-
-    setForm((prevForm) => ({
-      ...prevForm,
-      rqstNo: requstNo,
-      procRsnCnts: selectSupplementRequest === "99" ? targetValue : prevForm.procRsnCnts, // ✅ "99" 선택 시 입력값 적용
-    }));
-  };
-
-  /* 5. 보완요청 모달 취소버튼 */
-  const handleCloseSpplModal = () => {
-    // 폼 값 리셋
-    setForm((prevForm) => ({
-      ...prevForm,
-
-      procRsnCnts: "", // procRsnCnts 값을 초기화
-    }));
-
-    // 셀렉트 박스 값 리셋
-    setSelectedSupplementRequest("");
-
-    //에러 true이면 취소시 false
-    if (spplError) {
-      setSpplError(false);
-    }
-
-    // 모달 닫기
-    closeSupplementRequestModal();
-  };
-
-  /* 6. 보완요청하기 버튼 클릭  */
-  const handleRequestSppl = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!form.procRsnCnts) {
-      openToast({
-        message: "보완요청 사유를 입력해주세요.",
-        position: "top",
-      });
-      setSpplError(true);
-      return;
-    }
-
-    // 보완요청 api 호출
-    if (!supplementLock.lock()) return; // 중복 제출 방지
-    regiSupplement(form);
-  };
-  /* ----- [보완요청 끝] ----- */
-
-  /* ----- [진행취소 시작] ----- */
-  /* 1. 진행취소 버튼 클릭시 api 호출 모달오픈 */
-  const searchProcCancelCd = () => {
-    petchProcCancelCdData();
-    if (!procCancelCdLoading) {
-      openCancelProgressModal();
-    }
-  };
-
-  /* 2. 진행취소 셀렉트 option data */
-  const CANCEL_PROGRESS_OPTION = getCodeList(procCancelCdData?.data?.commCodeList);
-
-  /* 3. 진행취소 셀렉트박스 onChange */
-  const handleCancelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value;
-
-    setCnclError(false);
-    setSelectedCancelProgress(selectedValue);
-
-    const selectedOption = CANCEL_PROGRESS_OPTION.find((option) => option.value === selectedValue);
-
-    if (selectedOption && selectedValue) {
-      setForm((prevForm) => ({
-        ...prevForm,
-        rqstNo: requstNo,
-        procRsnCnts: selectedValue === "99" ? "" : selectedOption?.label, // "99" 이면 입력을 기다림, 아니면 선택한 값 저장
-      }));
-    }
-  };
-
-  /* 4. 진행취소 Form onChange */
-  const cancleFormMonitor = (e: ChangeEvent<HTMLFormElement>) => {
-    const targetValue = e.target.value;
-
-    setForm((prevForm) => ({
-      ...prevForm,
-      rqstNo: requstNo,
-      procRsnCnts: selectCancelProgress === "99" ? targetValue : prevForm.procRsnCnts, // ✅ "99" 선택 시 입력값 적용
-    }));
-  };
-
-  /* 5. 진행취소 모달 취소버튼 */
-  const handleCloseCaclModal = () => {
-    // 폼 값 리셋
-    setForm((prevForm) => ({
-      ...prevForm,
-      procRsnCnts: "", // procRsnCnts 값을 초기화
-    }));
-
-    // 셀렉트 박스 값 리셋
-    setSelectedCancelProgress("");
-
-    //에러 true이면 취소시 false
-    if (cnclError) {
-      setCnclError(false);
-    }
-
-    // 모달 닫기
-    closeCancelProgressModal();
-  };
-
-  /* 6. 진행취소 요청 */
-  const handleRequestCacel = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (form.procRsnCnts === "") {
-      openToast({
-        message: "진행취소 사유를 입력해주세요.",
-        position: "top",
-      });
-      setCnclError(true);
-      return;
-    }
-
-    // 진행취소 요청 api 호출
-    if (!cancelLock.lock()) return; // 중복 제출 방지
-    regiCancel(form);
-  };
-  /* ----- [진행취소 끝] ----- */
 
   /* 부동산구분코드 option data */
   const REAL_ESTATE_OPTION = getCodeList(realeGbCd);
@@ -1018,7 +754,7 @@ export default function Table({
               shape="outline"
               size="lg"
               color="main5"
-              onClick={() => searchSpplReqCd()}
+              onClick={openSupplementRequestModal}
             >
               보완요청
             </Button>
@@ -1029,7 +765,7 @@ export default function Table({
               shape="solid"
               size="lg"
               color="grayscale"
-              onClick={() => searchProcCancelCd()}
+              onClick={openCancelProgressModal}
             >
               진행취소
             </Button>
@@ -1037,152 +773,15 @@ export default function Table({
         </Grid>
       </div>
 
-      {/* 보완요청 모달 */}
       {isSupplementRequestModalOpen && (
-        <Modal title="보완요청" size="md" onClose={handleCloseSpplModal}>
-          <Form
-            onSubmit={handleRequestSppl}
-            legendText="보완요청 사유 선택 양식"
-            isHiddenLegend={true}
-            onChange={(e) => spplFormMonitor(e)}
-            className="px-4"
-          >
-            <div className="flex flex-col gap-y-3">
-              <Label
-                htmlFor="supplement-request"
-                required={true}
-                labelText="보완요청 사유"
-                labelSize="md"
-              />
-              <Select
-                id="supplement-request"
-                name="procRsnCnts"
-                selectSize="md"
-                placeholder="사유 선택"
-                options={SUPPLEMENT_REQUEST_OPTION}
-                value={selectSupplementRequest}
-                onChange={handleSupplementChange}
-                isError={spplError}
-                required={true}
-              />
-
-              {selectSupplementRequest === "99" && (
-                <InputField
-                  type="text"
-                  name="procRsnCnts"
-                  defaultValue={form.procRsnCnts}
-                  placeholder={"사유를 입력해 주세요"}
-                  isError={spplError}
-                  inputSize="md"
-                  onChange={() => setSpplError(false)}
-                />
-              )}
-            </div>
-
-            <ul className="_information-list mt-5 mb-8">
-              {SUPPLEMENT_REQUEST_INFORMATION_LIST.map((item) => {
-                const { id, content } = item;
-
-                return (
-                  <li key={id}>
-                    <Typography kind="body-medium" className="text-ers-grayscale-90">
-                      {content}
-                    </Typography>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="flex [&>button:first-child]:flex-2 [&>button:last-child]:flex-3 gap-x-3">
-              <Button shape="solid" size="md" color="grayscale" onClick={handleCloseSpplModal}>
-                취소
-              </Button>
-              <Button
-                type="submit"
-                shape="solid"
-                size="md"
-                color="main100"
-                disabled={supplementLock.isLocked}
-              >
-                보완 요청하기
-              </Button>
-            </div>
-          </Form>
-        </Modal>
+        <ProcessReasonModal
+          kind="supplement"
+          requestNo={requstNo}
+          onClose={closeSupplementRequestModal}
+        />
       )}
-
-      {/* 진행취소 모달 */}
       {isCancelProgressModalOpen && (
-        <Modal title="진행취소" size="md" onClose={handleCloseCaclModal}>
-          <Form
-            onSubmit={handleRequestCacel}
-            legendText="취소 사유 선택 양식"
-            isHiddenLegend={true}
-            onChange={(e) => cancleFormMonitor(e)}
-            className="px-4"
-          >
-            <div className="flex flex-col gap-y-3">
-              <Label
-                htmlFor="cancel-progress"
-                required={true}
-                labelText="취소사유"
-                labelSize="md"
-              />
-              <Select
-                id="cancel-progress"
-                name="procRsnCnts"
-                selectSize="md"
-                placeholder="사유 선택"
-                options={CANCEL_PROGRESS_OPTION}
-                value={selectCancelProgress}
-                onChange={handleCancelChange}
-                isError={cnclError}
-                required={true}
-              />
-
-              {selectCancelProgress === "99" && (
-                <InputField
-                  type="text"
-                  name="procRsnCnts"
-                  defaultValue={form.procRsnCnts}
-                  placeholder={"사유를 입력해 주세요"}
-                  isError={cnclError}
-                  onChange={() => setCnclError(false)}
-                  inputSize="md"
-                />
-              )}
-            </div>
-
-            <ul className="_information-list mt-5 mb-8">
-              {CANCEL_PROGRESS_INFORMATION_LIST.map((item) => {
-                const { id, content } = item;
-
-                return (
-                  <li key={id}>
-                    <Typography kind="body-medium" className="text-ers-grayscale-90">
-                      {content}
-                    </Typography>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="flex [&>button:first-child]:flex-2 [&>button:last-child]:flex-3 gap-x-3">
-              <Button shape="solid" size="md" color="grayscale" onClick={handleCloseCaclModal}>
-                취소
-              </Button>
-              <Button
-                type="submit"
-                shape="solid"
-                size="md"
-                color="main100"
-                disabled={cancelLock.isLocked}
-              >
-                진행 취소하기
-              </Button>
-            </div>
-          </Form>
-        </Modal>
+        <ProcessReasonModal kind="cancel" requestNo={requstNo} onClose={closeCancelProgressModal} />
       )}
     </>
   );

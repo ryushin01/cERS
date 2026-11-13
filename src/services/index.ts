@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { appURI, isDemoMode } from "@constants/env";
-import { readAccessToken } from "@stores/authStore";
+import { readAccessToken } from "@stores";
 import { mockAdapter } from "@/mocks/adapter";
 
 /**

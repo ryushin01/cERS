@@ -7,14 +7,16 @@ import RegistrationDataDetail from "@components/admin/registration/RegistrationD
 import RegistrationReceiptDetail from "@components/admin/registration/RegistrationReceiptDetail";
 import { Button } from "@components/button";
 import { Loading, ResponsiveSwiper, Typography } from "@components/common";
+import InfoTableSection from "@components/common/InfoTableSection";
 import { Grid, GridItem } from "@components/layout";
 import { Modal } from "@components/modal";
+import { getAddressRows } from "@components/registration/rows";
 import { ATTC_FIL_CD } from "@constants/code";
 import { useDisclosure } from "@hooks";
 import { getRegistrationDetailData } from "@services/registrationManagement";
 import { ResponsiveType } from "@types";
 import { getCompareWithToday } from "@utils/dateUtil";
-import { formatNumberComma, getDetailAddress, getManagerInfo } from "@utils/stringUtil";
+import { formatNumberComma, getManagerInfo } from "@utils/stringUtil";
 
 import RegistrationInformation from "./RegistrationInformation";
 
@@ -85,236 +87,55 @@ export default function List({ requestNo, isDesktop }: RegistrationDetailProps &
       <Grid className="_without-padding">
         <GridItem mobile={12} tablet={12} desktop={6}>
           {/* 담보목적물 주소 */}
-          <section className="_section">
-            <Typography
-              as="h2"
-              kind={isDesktop ? "title-medium" : "body-large"}
-              isBold={true}
-              className="_title"
-            >
-              담보목적물 주소
-            </Typography>
-            <div className="_responsive-table-inner-wrapper _no-thead">
-              <table className="_responsive-table">
-                <caption className="_hidden-table-caption">담보목적물 주소 표</caption>
-                <tbody>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        지번
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.lotnumAddr || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        도로명
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.rdnmAddr || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        상세주소
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {getDetailAddress(data?.bldg, data?.unit)}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        고유번호
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.unqRgstrNo || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <InfoTableSection
+            title="담보목적물 주소"
+            isDesktop={isDesktop}
+            rows={[...getAddressRows(data), { label: "고유번호", value: data?.unqRgstrNo || "-" }]}
+          />
         </GridItem>
         <GridItem mobile={12} tablet={12} desktop={6}>
           {/* 담당자 정보 */}
-          <section className="_section">
-            <Typography
-              as="h2"
-              kind={isDesktop ? "title-medium" : "body-large"}
-              isBold={true}
-              className="_title"
-            >
-              담당자 정보
-            </Typography>
-            <div className="_responsive-table-inner-wrapper _no-thead">
-              <table className="_responsive-table">
-                <caption className="_hidden-table-caption">담당자 정보 표</caption>
-                <tbody>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        금융기관
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {getManagerInfo(data?.bndMembNm, data?.bndMembHpno)}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        법무대리인
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {getManagerInfo(data?.lgagMembNm, data?.lgagMembHpno)}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        시스템 관리자
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {getManagerInfo(data?.mngrMembNm, data?.mngrMembHpno)}
-                      </Typography>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <InfoTableSection
+            title="담당자 정보"
+            isDesktop={isDesktop}
+            rows={[
+              { label: "금융기관", value: getManagerInfo(data?.bndMembNm, data?.bndMembHpno) },
+              { label: "법무대리인", value: getManagerInfo(data?.lgagMembNm, data?.lgagMembHpno) },
+              {
+                label: "시스템 관리자",
+                value: getManagerInfo(data?.mngrMembNm, data?.mngrMembHpno),
+              },
+            ]}
+          />
         </GridItem>
       </Grid>
 
       <Grid className="_without-padding">
         <GridItem mobile={12} tablet={12} desktop={6}>
           {/* 의뢰내용 정보 */}
-          <section className="_section">
-            <Typography
-              as="h2"
-              kind={isDesktop ? "title-medium" : "body-large"}
-              isBold={true}
-              className="_title"
-            >
-              의뢰내용 정보
-            </Typography>
-            <div className="_responsive-table-inner-wrapper _no-thead">
-              <table className="_responsive-table">
-                <caption className="_hidden-table-caption">의뢰내용 정보 표</caption>
-                <tbody>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        의뢰번호
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {requestNo}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        채권자
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.bndMembNm || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        채무자
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.dbtrNm || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        설정약정일
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.seDt || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        대출실행일
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.execDt || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        채권최고액
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.bndMaxAmt ? `${formatNumberComma(data?.bndMaxAmt)} 원` : "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <InfoTableSection
+            title="의뢰내용 정보"
+            isDesktop={isDesktop}
+            rows={[
+              { label: "의뢰번호", value: requestNo },
+              { label: "채권자", value: data?.bndMembNm || "-" },
+              { label: "채무자", value: data?.dbtrNm || "-" },
+              { label: "설정약정일", value: data?.seDt || "-" },
+              { label: "대출실행일", value: data?.execDt || "-" },
+              {
+                label: "채권최고액",
+                value: data?.bndMaxAmt ? `${formatNumberComma(data?.bndMaxAmt)} 원` : "-",
+              },
+            ]}
+          />
         </GridItem>
         <GridItem mobile={12} tablet={12} desktop={6}>
           {/* 등기접수 정보 */}
-          <section className="_section">
-            <div className="_addon">
-              <Typography
-                as="h2"
-                kind={isDesktop ? "title-medium" : "body-large"}
-                isBold={true}
-                className="_title"
-              >
-                등기접수 정보
-              </Typography>
-              {!!data?.acptNo ? (
+          <InfoTableSection
+            title="등기접수 정보"
+            isDesktop={isDesktop}
+            actions={
+              !!data?.acptNo ? (
                 <Button
                   shape="outline"
                   size="sm"
@@ -333,64 +154,15 @@ export default function List({ requestNo, isDesktop }: RegistrationDetailProps &
                 >
                   등록
                 </Button>
-              )}
-            </div>
-            <div className="_responsive-table-inner-wrapper _no-thead">
-              <table className="_responsive-table">
-                <caption className="_hidden-table-caption">등기접수 정보 표</caption>
-                <tbody>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        관할법원
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.judtCourtNm || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        등기소
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.regrNm || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        접수번호
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.acptNo || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"} isBold={true}>
-                        조회결과
-                      </Typography>
-                    </th>
-                    <td colSpan={4}>
-                      <Typography kind={isDesktop ? "body-large" : "body-small"}>
-                        {data?.rgstrAcptYn || "-"}
-                      </Typography>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+              )
+            }
+            rows={[
+              { label: "관할법원", value: data?.judtCourtNm || "-" },
+              { label: "등기소", value: data?.regrNm || "-" },
+              { label: "접수번호", value: data?.acptNo || "-" },
+              { label: "조회결과", value: data?.rgstrAcptYn || "-" },
+            ]}
+          />
         </GridItem>
       </Grid>
 

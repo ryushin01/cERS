@@ -1,7 +1,7 @@
 # cERS - 전자등기 관리 시스템
 
 [![CI](https://github.com/ryushin01/cERS/actions/workflows/ci.yml/badge.svg)](https://github.com/ryushin01/cERS/actions/workflows/ci.yml)
-![version](https://img.shields.io/badge/version-2.1.2-113662)
+![version](https://img.shields.io/badge/version-2.1.3-113662)
 ![Storybook](https://img.shields.io/badge/Storybook-10-FF4785?logo=storybook&logoColor=white)
 
 금융기관·관리자용 부동산 전자등기 관리 웹 애플리케이션의 프론트엔드입니다. **cERS**는 **c**ore **E**lectronic **R**egistration **S**ystem의 줄임말입니다.

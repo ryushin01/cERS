@@ -159,6 +159,12 @@ pnpm run dev
 - 저장 요청은 보낼 데이터를 `mutate(데이터)`로 직접 넘깁니다. (상태를 바꾼 직후 `mutate()`를 호출하고 `mutationFn`이 상태를 읽으면, 실행 시점에 따라 이전 값이 전송될 수 있음)
 - 처리 사유(반려·진행취소·보완요청)에서 "기타"는 코드 `99`이고, 직접 입력한 문구를 보냅니다(`codeUtil.getReasonText`).
 - 로그인 정보는 `sessionStorage`의 `AUTH_STORAGE_KEY`(`src/stores/authStore.ts`)에 둡니다. 저장·요청·로그아웃 모두 이 상수를 쓰고, 요청 인터셉터는 `readAccessToken()`으로 토큰을 읽습니다. 값이 손상되었으면 빈 토큰으로 보고 로그아웃 상태로 요청합니다.
+- 다른 브라우저 저장소 키(헤더 검색 의뢰번호, 아이디 저장)는 `src/constants/storage.ts`에 둡니다. 화면에 문자열로 적지 않습니다.
+- 목록 표의 머리 줄은 `TableHead`(칸 이름 배열), 글자만 든 칸은 `BodyCell`(`components/common/TableCell.tsx`)을 씁니다. 링크·버튼이 든 칸은 `td`를 직접 씁니다.
+- "제목 + 항목/값" 표는 `InfoTableSection`을 씁니다. 제목 옆 버튼은 `actions`로 넘깁니다.
+- 보완요청·진행취소처럼 사유를 골라 처리하는 모달은 `ProcessReasonModal`(`kind`)을 씁니다. "기타"(99)를 고르면 직접 입력합니다.
+- 첨부 파일 수·전체 용량 검사는 `getAttachmentLimitMessage`(`utils/fileUtil.ts`)로 합니다.
+- 탭 목록은 탭 이름과 조회 코드를 한 배열(`TABS`)에 두고, 탭 번호로 코드를 찾습니다. 탭 순서를 바꿀 때 코드가 어긋나지 않게 하기 위해서입니다.
 
 ### 단위 테스트
 

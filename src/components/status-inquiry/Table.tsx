@@ -1,7 +1,8 @@
 import { Dispatch, useState } from "react";
 
 import { Button } from "@components/button";
-import { ResponsiveSwiper, Typography } from "@components/common";
+import { ResponsiveSwiper } from "@components/common";
+import { BodyCell, TableHead } from "@components/common/TableCell";
 import { Grid, GridItem } from "@components/layout";
 import { Modal } from "@components/modal";
 import Detail from "@components/request-list/Detail";
@@ -78,73 +79,28 @@ export default function Table({ isDesktop, data, setQueryTime }: contentsProps) 
       <div className="_responsive-table-inner-wrapper _has-thead">
         <table className="_responsive-table _col-7-type">
           <caption className="_hidden-table-caption">전자등기 현황조회 표</caption>
-          <thead>
-            <tr>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰번호
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰일
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  대출실행일
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  진행상태
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  채무자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  등기자료
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  등기접수증
-                </Typography>
-              </th>
-            </tr>
-          </thead>
+          <TableHead
+            isDesktop={isDesktop}
+            labels={[
+              "의뢰번호",
+              "의뢰일",
+              "대출실행일",
+              "진행상태",
+              "채무자",
+              "등기자료",
+              "등기접수증",
+            ]}
+          />
           <tbody>
             {data?.map((item, idx) => (
               <tr key={`${item}-${idx}`}>
-                <td>
-                  <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                    {item.rqstNo}
-                  </Typography>
-                </td>
-                <td>
-                  <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                    {item.crtDtm}
-                  </Typography>
-                </td>
-                <td>
-                  <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                    {item.execDt}
-                  </Typography>
-                </td>
-                <td>
-                  <Typography kind={isDesktop ? "title-medium" : "body-medium"} className="_status">
-                    {item.statNm} {item.acptNo && `[${item.acptNo}]`}
-                  </Typography>
-                </td>
-                <td>
-                  <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                    {item.dbtrNm}
-                  </Typography>
-                </td>
+                <BodyCell isDesktop={isDesktop}>{item.rqstNo}</BodyCell>
+                <BodyCell isDesktop={isDesktop}>{item.crtDtm}</BodyCell>
+                <BodyCell isDesktop={isDesktop}>{item.execDt}</BodyCell>
+                <BodyCell isDesktop={isDesktop} className="_status">
+                  {item.statNm} {item.acptNo && `[${item.acptNo}]`}
+                </BodyCell>
+                <BodyCell isDesktop={isDesktop}>{item.dbtrNm}</BodyCell>
                 <td>
                   {item.statCd <= "30"}
                   <Button

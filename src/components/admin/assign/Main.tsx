@@ -24,55 +24,20 @@ export default function Main() {
     setUnMatchCount(newData);
   };
 
-  const TAB_LIST = [
-    {
-      label: "미배정",
-      content: (
-        <List tabIndex={tabCode} searchRqstNo={submittedRqstNo} unMatchData={onChangeMatchData} />
-      ),
-    },
-    {
-      label: "배정완료",
-      content: (
-        <List tabIndex={tabCode} searchRqstNo={submittedRqstNo} unMatchData={onChangeMatchData} />
-      ),
-    },
-    {
-      label: "진행보류",
-      content: (
-        <List tabIndex={tabCode} searchRqstNo={submittedRqstNo} unMatchData={onChangeMatchData} />
-      ),
-    },
-    {
-      label: "진행취소",
-      content: (
-        <List tabIndex={tabCode} searchRqstNo={submittedRqstNo} unMatchData={onChangeMatchData} />
-      ),
-    },
+  /* 탭과 목록 조회 코드 (00 미배정, 01 배정완료, 02 진행보류, 03 진행취소) */
+  const TABS = [
+    { label: "미배정", code: "00" },
+    { label: "배정완료", code: "01" },
+    { label: "진행보류", code: "02" },
+    { label: "진행취소", code: "03" },
   ];
+  const list = (
+    <List tabIndex={tabCode} searchRqstNo={submittedRqstNo} unMatchData={onChangeMatchData} />
+  );
+  const TAB_LIST = TABS.map(({ label }) => ({ label, content: list }));
 
-  /* tab 인덱스 바뀌면 value tabCode에 셋팅 */
-  const handleTabChange = (index: number) => {
-    let tabIndex;
-    switch (index) {
-      case 0:
-        tabIndex = "00"; // 미배정
-        break;
-      case 1:
-        tabIndex = "01"; // 배정완료
-        break;
-      case 2:
-        tabIndex = "02"; // 진행보류
-        break;
-      case 3:
-        tabIndex = "03"; // 진행취소
-        break;
-      default:
-        tabIndex = "00"; // 미배정
-        break;
-    }
-    setTabCode(tabIndex);
-  };
+  /* 탭이 바뀌면 그 탭의 조회 코드로 */
+  const handleTabChange = (index: number) => setTabCode(TABS[index]?.code ?? "00");
 
   /* 의뢰번호 입력시 searchRqstNo 값 셋팅 */
   const handleFormChange = (event: ChangeEvent<HTMLFormElement>) => {

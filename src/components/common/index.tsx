@@ -2,7 +2,6 @@ import AccountLayer from "./AccountLayer";
 import Badge from "./Badge";
 import Breadcrumb from "./Breadcrumb";
 import DatePicker from "./DatePicker";
-import Frame from "./Frame";
 import ImageWithAuth from "./ImageWithAuth";
 import Loading from "./Loading";
 import PageIndicator from "./PageIndicator";
@@ -17,7 +16,6 @@ export {
   Badge,
   Breadcrumb,
   DatePicker,
-  Frame,
   ImageWithAuth,
   Loading,
   PageIndicator,
