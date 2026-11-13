@@ -2,13 +2,13 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 
-import { proxy } from "./proxy";
+import { middleware } from "./middleware";
 
 const BASE_URL = "https://localhost:4000";
 
 function request(pathname: string, membGbCd?: string) {
   const headers = membGbCd ? { cookie: `membGbCd=${membGbCd}` } : undefined;
-  return proxy(new NextRequest(new URL(pathname, BASE_URL), { headers }));
+  return middleware(new NextRequest(new URL(pathname, BASE_URL), { headers }));
 }
 
 /** 리다이렉트면 이동할 경로를, 통과면 null을 돌려줍니다. */
@@ -17,7 +17,7 @@ function redirectedTo(pathname: string, membGbCd?: string) {
   return location ? new URL(location).pathname : null;
 }
 
-describe("proxy 권한별 라우팅", () => {
+describe("middleware 권한별 라우팅", () => {
   // 사용자 구분 코드: 00 금융기관, 20 관리자
   it.each([
     // [요청 경로, 쿠키 membGbCd, 이동할 경로(null이면 통과)]

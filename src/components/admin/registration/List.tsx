@@ -94,7 +94,6 @@ export default function List({
       const storedRqstNo = sessionStorage.getItem(ADMIN_SEARCH_RQSTNO_KEY);
       if (storedRqstNo) {
         // sessionStorage는 브라우저에만 있어 하이드레이션 뒤에 읽어야 합니다.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFilters((prev) => ({ ...prev, rqstNo: storedRqstNo }));
       }
     }

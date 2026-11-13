@@ -9,21 +9,21 @@ sequenceDiagram
     actor 사용자
     participant 로그인 as 로그인 화면<br/>(components/login)
     participant 저장 as 쿠키 membGbCd<br/>sessionStorage auth
-    participant 프록시 as proxy.ts
+    participant 미들웨어 as middleware.ts
     participant 화면 as 금융기관 / 관리자 화면
 
     사용자->>로그인: 사용자 유형 고르고 로그인
     로그인->>저장: membGbCd(00 금융기관, 20 관리자), 사용자 정보
-    로그인->>프록시: 첫 화면 요청
-    프록시->>저장: membGbCd 읽기
+    로그인->>미들웨어: 첫 화면 요청
+    미들웨어->>저장: membGbCd 읽기
     alt 로그인 안 함 + 권한 화면
-        프록시-->>사용자: /login 으로 이동
+        미들웨어-->>사용자: /login 으로 이동
     else 금융기관 + 다른 유형의 화면
-        프록시-->>사용자: 금융기관 홈으로 이동
+        미들웨어-->>사용자: 금융기관 홈으로 이동
     else 관리자 + 다른 유형의 화면
-        프록시-->>사용자: 배정관리로 이동
+        미들웨어-->>사용자: 배정관리로 이동
     else 정적 파일·Storybook 또는 자기 화면
-        프록시->>화면: 통과
+        미들웨어->>화면: 통과
         화면-->>사용자: 화면
     end
 ```
