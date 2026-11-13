@@ -28,6 +28,8 @@ pnpm run dev
 
 > Next.js 15는 Node.js 18.18 이상, Storybook 10은 Node.js 20.19 이상이 필요합니다. 저장소 기준인 Node.js 22를 사용하세요.
 
+> cERS는 레거시 시스템이라 Next.js 15(`src/middleware.ts`)에 머뭅니다. Next.js 16(`proxy.ts`)으로 올리지 않고 15 계열의 보안 패치만 받습니다(`CLAUDE.md`).
+
 ## 주요 스크립트
 
 | 명령 | 설명 |
