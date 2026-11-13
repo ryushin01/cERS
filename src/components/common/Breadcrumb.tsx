@@ -15,14 +15,14 @@ type PathListProps = {
   [key: string]: string;
 };
 
-export const FI_PATH_LIST: PathListProps = {
+const FI_PATH_LIST: PathListProps = {
   home: "홈",
   notice: "공지사항",
   "request-list": "의뢰목록",
   request: "전자등기 의뢰",
 };
 
-export const AD_PATH_LIST: PathListProps = {
+const AD_PATH_LIST: PathListProps = {
   assign: "배정관리",
   "assign-create": "전자등기 신규등록",
   "assign-detail": "전자등기 배정",

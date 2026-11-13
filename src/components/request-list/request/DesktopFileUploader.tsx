@@ -19,7 +19,7 @@ import { getRegistrationImages } from "@services/file";
 import { patchRequestData, postRequestData } from "@services/request";
 import { toastState } from "@stores";
 import { getDateString, getTodayAddDays, stringToDate } from "@utils/dateUtil";
-import { checkUploadFileSize } from "@utils/fileUtil";
+import { checkFileSize } from "@utils/fileUtil";
 
 import DesktopFileList from "./DesktopFileList";
 import FileIndicator from "./FileIndicator";
@@ -99,7 +99,7 @@ export default function DesktopFileUploader({ requestNo }: requestProps) {
 
   /* 파일 선택 이벤트 */
   const handleChange = (info: UploadChangeParam) => {
-    if (checkUploadFileSize(info.file)) {
+    if (checkFileSize(info.file)) {
       info.fileList?.map((item) => {
         if (item.uid === info.file.uid) {
           const fileData: FileData = {

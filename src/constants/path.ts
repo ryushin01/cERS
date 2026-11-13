@@ -1,33 +1,31 @@
 // 금융기관
-export const FI = "financial";
+const FI = "financial";
 
 // 관리자
-export const AD = "admin";
+const AD = "admin";
 
 // 법무대리인
-export const LA = "lawyer";
+const LA = "lawyer";
 
-export const HOME = "home";
+const HOME = "home";
 
-export const NOTICE = "notice";
+const NOTICE = "notice";
 
-export const REQUEST_LIST = "request-list";
+const REQUEST_LIST = "request-list";
 
-export const REQUEST = "request";
+const REQUEST = "request";
 
-export const STATUS_INQUIRY = "status-inquiry";
+const STATUS_INQUIRY = "status-inquiry";
 
-export const ASSIGN = "assign";
+const ASSIGN = "assign";
 
-export const REGISTRATION = "registration";
+const REGISTRATION = "registration";
 
-export const CREATE = "create";
+const CREATE = "create";
 
-export const DETAIL = "detail";
+const DETAIL = "detail";
 
-export const MEMBER = "member";
-
-export const ACCEPTANCE = "acceptance";
+const ACCEPTANCE = "acceptance";
 
 // 로그인
 export const LOGIN_PATH = "/";
@@ -70,12 +68,6 @@ export const AD_REGISTRATION_DETAIL = `/${AD}/${REGISTRATION}/${REGISTRATION}-${
 
 // 관리자 > 등기관리 > 승인
 export const AD_REGISTRATION_ACCEPTANCE = `/${AD}/${REGISTRATION}/${REGISTRATION}-${ACCEPTANCE}`;
-
-// 관리자 > 회원관리
-export const AD_MEMBER = `/${AD}/${MEMBER}`;
-
-// 관리자 > 공지관리
-export const AD_NOTICE = `/${AD}/${NOTICE}`;
 
 // 법무대리인
 export const LA_PATH = `/${LA}`;

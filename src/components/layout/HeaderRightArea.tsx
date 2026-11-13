@@ -11,6 +11,7 @@ import { Form, SearchInput } from "@components/form";
 import { MEMB_GB_CD, MembGbCd } from "@constants/auth";
 import { appURI } from "@constants/env";
 import { AD_REGISTRATION, FI_STATUS_INQUIRY } from "@constants/path";
+import { ADMIN_SEARCH_RQSTNO_KEY, BANK_SEARCH_RQSTNO_KEY } from "@constants/storage";
 import { useAdjustState, useDisclosure, useLogout, useResponsive } from "@hooks";
 import { LogoutIcon } from "@icons14";
 import { MenuIcon } from "@icons24";
@@ -102,9 +103,9 @@ export default function HeaderRightArea() {
 
   const handleSearchSuccess = (movePath: string) => {
     if (movePath === FI_STATUS_INQUIRY) {
-      sessionStorage.setItem("bank-rqstno", searchRqstNo);
+      sessionStorage.setItem(BANK_SEARCH_RQSTNO_KEY, searchRqstNo);
     } else if (movePath === AD_REGISTRATION) {
-      sessionStorage.setItem("admin-rqstno", searchRqstNo);
+      sessionStorage.setItem(ADMIN_SEARCH_RQSTNO_KEY, searchRqstNo);
     }
     // 목록 화면이 처음 열릴 때 위에 저장한 번호를 읽으므로, 같은 화면에서도 새로 열리도록 전체를 다시 불러옵니다.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination

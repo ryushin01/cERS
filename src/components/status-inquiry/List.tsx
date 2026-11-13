@@ -11,6 +11,7 @@ import {
   PAGE_LIMIT_ADMIN,
   PAGE_LIMIT_MOBILE,
 } from "@constants/page";
+import { BANK_SEARCH_RQSTNO_KEY } from "@constants/storage";
 import { useAdjustState } from "@hooks";
 import { getStasusListData } from "@services/statusInquiry";
 import { toastState } from "@stores";
@@ -53,7 +54,7 @@ export default function List({ isDesktop }: ResponsiveType) {
   //헤더 의뢰번호 검색 후 처리
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedRqstNo = sessionStorage.getItem("bank-rqstno");
+      const storedRqstNo = sessionStorage.getItem(BANK_SEARCH_RQSTNO_KEY);
       if (storedRqstNo) {
         // sessionStorage는 브라우저에만 있어 하이드레이션 뒤에 읽어야 합니다.
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -64,7 +65,7 @@ export default function List({ isDesktop }: ResponsiveType) {
 
     return () => {
       if (typeof window !== "undefined") {
-        sessionStorage.removeItem("bank-rqstno");
+        sessionStorage.removeItem(BANK_SEARCH_RQSTNO_KEY);
       }
     };
   }, []);

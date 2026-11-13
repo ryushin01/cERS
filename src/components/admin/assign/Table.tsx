@@ -5,6 +5,7 @@ import { useState } from "react";
 import RegistrationDataDetail from "@components/admin/registration/RegistrationDataDetail";
 import { Button } from "@components/button";
 import { ResponsiveSwiper, Typography } from "@components/common";
+import { BodyCell, TableHead } from "@components/common/TableCell";
 import { Grid, GridItem } from "@components/layout";
 import { Modal } from "@components/modal";
 import { ATTC_FIL_CD } from "@constants/code";
@@ -37,50 +38,19 @@ export default function Table({ isDesktop, data }: DefineProps) {
       <div className="_responsive-table-inner-wrapper _has-thead">
         <table className="_responsive-table _col-8-type">
           <caption className="_hidden-table-caption">배정관리 목록 표</caption>
-          <thead>
-            <tr>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  진행상태
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰번호
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  채권자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  채무자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰일시
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  배정일시
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  등기자료
-                </Typography>
-              </th>
-            </tr>
-          </thead>
+          <TableHead
+            isDesktop={isDesktop}
+            labels={[
+              "진행상태",
+              "의뢰번호",
+              "의뢰자",
+              "채권자",
+              "채무자",
+              "의뢰일시",
+              "배정일시",
+              "등기자료",
+            ]}
+          />
           <tbody>
             {data?.map((item, idx) => {
               const { statNm, rqstNo, clientNm, bndNm, dbtrNm, crtDtm, mtchDtm } = item;
@@ -94,11 +64,7 @@ export default function Table({ isDesktop, data }: DefineProps) {
                       {statNm}
                     </Typography>
                   </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {rqstNo}
-                    </Typography>
-                  </td>
+                  <BodyCell isDesktop={isDesktop}>{rqstNo}</BodyCell>
                   <td>
                     <Typography
                       kind={isDesktop ? "title-medium" : "body-medium"}
@@ -115,21 +81,9 @@ export default function Table({ isDesktop, data }: DefineProps) {
                       {bndNm}
                     </Typography>
                   </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {dbtrNm}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {crtDtm}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {mtchDtm}
-                    </Typography>
-                  </td>
+                  <BodyCell isDesktop={isDesktop}>{dbtrNm}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{crtDtm}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{mtchDtm}</BodyCell>
                   <td>
                     <Button
                       shape="outline"

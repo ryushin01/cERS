@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { checkFileSize, FILE_MAXIMUM_SIZE, formatBytes, formatMegaBytes } from "./fileUtil";
+import { FILE_MAXIMUM_NUMBER, FILE_MAXIMUM_SIZE } from "@constants/file";
+
+import { checkFileSize, formatBytes, formatMegaBytes, getAttachmentLimitMessage } from "./fileUtil";
 
 const fileOfSize = (size: number) => ({ size }) as File;
 
@@ -35,5 +37,24 @@ describe("formatMegaBytes", () => {
   it("MB 단위로 표시한다", () => {
     expect(formatMegaBytes(0)).toBe("0 Bytes");
     expect(formatMegaBytes(1024 ** 2 * 1.5)).toBe("1.5 MB");
+  });
+});
+
+describe("getAttachmentLimitMessage", () => {
+  const files = (count: number, size: number) => Array.from({ length: count }, () => ({ size }));
+
+  it("개수와 전체 용량이 한도 안이면 null", () => {
+    expect(getAttachmentLimitMessage([])).toBeNull();
+    expect(getAttachmentLimitMessage(files(FILE_MAXIMUM_NUMBER, 1))).toBeNull();
+    expect(getAttachmentLimitMessage(files(2, FILE_MAXIMUM_SIZE / 2))).toBeNull();
+  });
+
+  it("개수를 넘으면 개수 안내를, 용량을 넘으면 용량 안내를 돌려준다", () => {
+    expect(getAttachmentLimitMessage(files(FILE_MAXIMUM_NUMBER + 1, 1))).toBe(
+      `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.`,
+    );
+    expect(getAttachmentLimitMessage(files(2, FILE_MAXIMUM_SIZE / 2 + 1))).toMatch(
+      /^업로드 가능한 전체 용량은 최대/,
+    );
   });
 });

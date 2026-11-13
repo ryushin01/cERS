@@ -14,6 +14,8 @@ type InfoTableSectionProps = {
   title: string;
   rows: InfoRow[];
   isDesktop?: boolean;
+  /** 제목 옆에 둘 버튼 등. 있으면 제목과 한 줄(_addon)에 놓습니다. */
+  actions?: ReactNode;
 };
 
 /**
@@ -24,20 +26,36 @@ type InfoTableSectionProps = {
  *              등기자료·등기접수증 상세 팝업에서 공통으로 사용합니다.
  * @property {string} title       - 섹션 제목 (표 캡션은 "{title} 표")
  * @property {InfoRow[]} rows     - 표 행 목록
+ * @property {ReactNode} actions  - 제목 옆 버튼 등 (선택)
  */
-export default function InfoTableSection({ title, rows, isDesktop }: InfoTableSectionProps) {
+export default function InfoTableSection({
+  title,
+  rows,
+  isDesktop,
+  actions,
+}: InfoTableSectionProps) {
   const cellKind = isDesktop ? "body-large" : "body-small";
+  const heading = (
+    <Typography
+      as="h2"
+      kind={isDesktop ? "title-medium" : "body-large"}
+      isBold={true}
+      className="_title"
+    >
+      {title}
+    </Typography>
+  );
 
   return (
     <section className="_section">
-      <Typography
-        as="h2"
-        kind={isDesktop ? "title-medium" : "body-large"}
-        isBold={true}
-        className="_title"
-      >
-        {title}
-      </Typography>
+      {actions ? (
+        <div className="_addon">
+          {heading}
+          {actions}
+        </div>
+      ) : (
+        heading
+      )}
       <div className="_responsive-table-inner-wrapper _no-thead">
         <table className="_responsive-table">
           <caption className="_hidden-table-caption">{title} 표</caption>
