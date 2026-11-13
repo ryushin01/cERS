@@ -39,4 +39,4 @@ docker compose -f docker/production/docker-compose.yml up --build
 
 ## Vercel 데모
 
-Vercel 프로젝트 `ers`에 저장소가 연결되어 있어 `main`에 푸시하면 자동으로 운영 배포되고, PR마다 미리보기가 만들어집니다. 데모 모드가 기본이라 환경 변수는 필요 없습니다.
+Vercel 프로젝트 `ers`에 저장소가 연결되어 있어 `main`에 푸시하면 자동으로 운영 배포됩니다. 하루 배포 한도를 아끼려고 PR 미리보기 배포는 껐습니다(`vercel.json`의 `git.deploymentEnabled`). 데모 모드가 기본이라 환경 변수는 필요 없습니다.
