@@ -17,7 +17,13 @@ const meta = {
     docs: { story: { inline: false, height: "640px" } },
     ...routeParameters(`/admin/assign/assign-detail/${rqstNo}`, { rqstNo }),
   },
-  args: { kind: "supplement", requestNo: rqstNo, onClose: () => {} },
+  args: {
+    kind: "supplement",
+    requestNo: rqstNo,
+    // 화면에서는 Table이 useSubmitLock으로 만든 잠금을 넘깁니다.
+    lock: { isLocked: false, lock: () => true, unlock: () => {} },
+    onClose: () => {},
+  },
 } satisfies Meta<typeof ProcessReasonModal>;
 
 export default meta;

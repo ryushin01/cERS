@@ -162,8 +162,11 @@ export default function Table({
     enabled: false,
   });
 
-  // 중복 제출 방지. 실패 시에만 다시 제출 가능 (보완요청·진행취소는 ProcessReasonModal이 맡음)
+  // 중복 제출 방지. 실패 시에만 다시 제출 가능
+  // 보완요청·진행취소 잠금도 여기서 가져, 모달을 닫았다 다시 열어도 처리 중인 요청을 다시 보내지 않게 함
   const assignLock = useSubmitLock();
+  const supplementLock = useSubmitLock();
+  const cancelLock = useSubmitLock();
 
   /* 배정하기 진행요청 api */
   const { mutate: patchAccignmentsubmit } = useMutation({
@@ -777,11 +780,17 @@ export default function Table({
         <ProcessReasonModal
           kind="supplement"
           requestNo={requstNo}
+          lock={supplementLock}
           onClose={closeSupplementRequestModal}
         />
       )}
       {isCancelProgressModalOpen && (
-        <ProcessReasonModal kind="cancel" requestNo={requstNo} onClose={closeCancelProgressModal} />
+        <ProcessReasonModal
+          kind="cancel"
+          requestNo={requstNo}
+          lock={cancelLock}
+          onClose={closeCancelProgressModal}
+        />
       )}
     </>
   );

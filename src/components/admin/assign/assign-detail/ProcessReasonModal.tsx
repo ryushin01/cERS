@@ -15,11 +15,14 @@ import {
   SUPPLEMENT_REQUEST_INFORMATION_LIST,
 } from "@constants/information";
 import { AD_ASSIGN } from "@constants/path";
-import { useSubmitLock } from "@hooks";
 import { patchRegiCancel, patchRegiSupplement } from "@services/assignDetail";
 import { getCommonCodeList } from "@services/common";
 import { toastState } from "@stores";
 import { getCodeList } from "@utils/codeUtil";
+
+import type { useSubmitLock } from "@hooks";
+
+type SubmitLock = ReturnType<typeof useSubmitLock>;
 
 /* "기타" 사유 코드. 고르면 사유를 직접 입력합니다. */
 const OTHER_REASON = "99";
@@ -55,6 +58,11 @@ const KINDS = {
 type ProcessReasonModalProps = {
   kind: keyof typeof KINDS;
   requestNo: string;
+  /**
+   * 중복 제출 잠금. 모달을 닫았다 다시 열어도 처리 중인 요청을 다시 보내지 않도록, 모달보다 오래 사는 쪽(Table)이 갖고 넘깁니다.
+   * 성공하면 화면을 떠나므로 실패했을 때만 풉니다.
+   */
+  lock: SubmitLock;
   onClose: () => void;
 };
 
@@ -67,13 +75,18 @@ type ProcessReasonModalProps = {
  *              처리에 성공하면 배정관리로 이동하고, 실패했을 때만 다시 제출할 수 있습니다.
  * @property {"supplement" | "cancel"} kind - 보완요청 또는 진행취소
  * @property {string} requestNo             - 의뢰번호
+ * @property {SubmitLock} lock              - 중복 제출 잠금 (Table이 갖고 넘김)
  * @property {function} onClose             - 닫기
  */
-export default function ProcessReasonModal({ kind, requestNo, onClose }: ProcessReasonModalProps) {
+export default function ProcessReasonModal({
+  kind,
+  requestNo,
+  lock,
+  onClose,
+}: ProcessReasonModalProps) {
   const config = KINDS[kind];
   const router = useRouter();
   const openToast = useSetAtom(toastState);
-  const lock = useSubmitLock();
   const [selected, setSelected] = useState("");
   const [reason, setReason] = useState("");
   const [isError, setIsError] = useState(false);
