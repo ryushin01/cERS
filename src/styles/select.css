@@ -10,7 +10,9 @@ select {
 
     select {
         @apply w-full pl-4 pr-8 outline-none border border-ers-grayscale-40 rounded-lg bg-[url(/icons/20/down-icon20.svg)] bg-no-repeat bg-ers-grayscale-0 truncate;
-        background-position: center right 16px;
+        /* 화살표 오른쪽 간격을 글자 왼쪽 간격(테두리 1px + 안쪽 여백 16px)과 맞춥니다.
+           20px 아이콘의 화살표 둘레에 약 4.5px 빈 공간이 있어 12px만 띄웁니다. 오른쪽 안쪽 여백(pr-8, 32px)은 이 12px + 아이콘 20px 자리입니다. */
+        background-position: center right 12px;
 
         &:focus,
         &:active {
