@@ -126,3 +126,9 @@ src/
 | [에디터 설정](docs/editor-setup.md) | IntelliJ, VS Code |
 | [시퀀스 다이어그램](docs/sequence-diagrams.md) | 로그인과 화면 이동, API 요청 경로(목업 어댑터), 관리자 배정 등록 |
 | [버전 기록](CHANGELOG.md) | 버전별 변경 내용 |
+
+## 출처
+
+| 자료 | 저작자 | 사용 허락 | 원본 |
+|---|---|---|---|
+| Pretendard 글꼴 | 길형진(orioncactus) | SIL OFL 1.1 | [orioncactus/pretendard](https://github.com/orioncactus/pretendard) |
