@@ -2,7 +2,6 @@ import AlertTriangleIcon20 from "./alert-triangle-icon20.svg";
 import NarrowRightIcon from "./arrow-narrow-right-icon20.svg";
 import CheckboxCheckedIcon from "./checkbox-selected20.svg";
 import CheckboxUncheckedIcon from "./checkbox-unselected20.svg";
-import DownArrowIcon from "./down-icon20.svg";
 import EyeIcon from "./eye-icon20.svg";
 import EyeOffIcon from "./eye-off-icon20.svg";
 import LeftArrowDoubleIcon from "./left-double-icon20.svg";
@@ -15,13 +14,11 @@ import RadioUncheckedIcon from "./radio-unselected20.svg";
 import RightArrowDoubleIcon from "./right-double-icon20.svg";
 import RightIcon from "./right-icon20.svg";
 import UserIcon from "./user-icon20.svg";
-import XCircleIcon from "./x-circle-icon20.svg";
 
 export {
   AlertTriangleIcon20,
   CheckboxCheckedIcon,
   CheckboxUncheckedIcon,
-  DownArrowIcon,
   EyeIcon,
   EyeOffIcon,
   LeftArrowDoubleIcon,
@@ -35,5 +32,4 @@ export {
   RightArrowDoubleIcon,
   RightIcon,
   UserIcon,
-  XCircleIcon,
 };

@@ -2,7 +2,10 @@
 
 | 버전     | 날짜         | 내용                                                           | 비고            |
 |--------|------------|--------------------------------------------------------------|---------------|
-| v2.1.2 | 2026.11.11. | - 대체 글꼴: Pretendard를 받지 못하면 운영체제 한글 고딕(Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR)으로 이음 | N/A |
+| v2.2.1 | 2026.11.14. | - 대체 글꼴: Pretendard를 받지 못하면 운영체제 한글 고딕(Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR)으로 이음 | N/A |
+| v2.2.0 | 2026.11.13. | - Next.js를 15(15.5.29, 15 계열의 최신 패치)로 되돌리고 `proxy`를 다시 `middleware`로(v2.1.0의 업그레이드를 되돌림, 레거시 시스템의 버전 유지)<br>- ESLint는 업그레이드 전처럼 `FlatCompat`으로 `eslint-config-next` 15 설정을 읽음. Next.js 16 설정에만 있던 React Compiler 대비 규칙(`react-hooks/set-state-in-effect` 등)은 빠지고, v2.1.1에서 고친 코드는 그대로 둠. 그 규칙을 끄던 주석 4곳(`eslint-disable-next-line`)은 없는 규칙을 가리켜 지움 | N/A |
+| v2.1.3 | 2026.11.13. | - 404 화면이 관리자 주소에서도 금융기관 홈으로 보내던 문제 수정(저장하는 곳이 없는 `prevPath` 대신 찾지 못한 주소로 판단)<br>- 보완요청·진행취소에서 "기타"를 골랐다가 다른 사유로 바꾸면 사유 문구 대신 코드 값이 전송되던 문제 수정<br>- 공통화: 보완요청·진행취소 모달을 `ProcessReasonModal` 하나로(배정 상세 `Table.tsx` 1,190 → 804줄), 등기 상세의 항목/값 표 4개를 `InfoTableSection`으로(627 → 398줄), 목록 표 6곳의 머리 줄·글자 칸을 `TableHead`·`BodyCell`로, 탭 3곳을 이름·코드 배열로, 첨부 제한 검사·저장 키를 상수와 함수로<br>- 정리: 쓰지 않는 상수 18개(선택 목록·입력 설정·경로·코드)와 아이콘 내보내기, 중복 상수 `FILE_MAXIMUM_SIZE`, 같은 일을 하던 파일 크기 검사 함수 2개를 하나로<br>- 테스트: 404 화면, 사유 모달(처리 중에 닫았다 다시 열어도 한 번만 전송 포함), 첨부 제한(323 → 331개). 스토리: 표 칸, 사유 모달 | N/A |
+| v2.1.2 | 2026.11.13. | - 세션에 저장된 로그인 정보가 손상되면 요청 인터셉터의 `JSON.parse`가 던져 모든 API 요청이 실패하던 문제 수정(`readAccessToken`이 빈 토큰으로 처리)<br>- 세션 키 `auth`를 `AUTH_STORAGE_KEY` 상수로 모아 로그인 저장·요청·로그아웃이 같은 키를 쓰게 정리 | N/A |
 | v2.1.1 | 2026.11.5. | - Next.js 16의 React Hooks lint 규칙을 다시 켜고 42건을 정리(이펙트에서 상태를 맞추던 코드를 렌더링 중 조정으로 변경, `useAdjustState`·`useIsClient` 추가)<br>- 사진 파일 이름의 시각을 렌더링 시점이 아니라 촬영 시점으로 변경<br>- `file-uploader.css`의 동작하지 않던 잘못된 선택자 삭제, `spinner.css`에서 덮어써져 쓰이지 않던 `animate-spin` 삭제 | N/A |
 | v2.1.0 | 2026.11.5. | - Next.js 16으로 업그레이드, `middleware`를 `proxy`로 변경 | N/A |
 | v2.0.10 | 2026.11.5. | - Storybook 소개 문서의 표가 글자 그대로 나오던 문제 수정(`remark-gfm` 연결), 소제목 굵기 복원<br>- Storybook 메뉴를 Foundations·Components·Patterns·Pages 구조로 재구성하고, 작은 부품에서 조립된 화면 순서로 정렬(스토리 주소 변경)<br>- README Storybook 스크린샷 갱신 | N/A |

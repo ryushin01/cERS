@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@components/button";
 import { ResponsiveSwiper, Typography } from "@components/common";
+import { BodyCell, TableHead } from "@components/common/TableCell";
 import { Grid, GridItem } from "@components/layout";
 import { Modal } from "@components/modal";
 import { ATTC_FIL_CD, PROC_STAT_CD } from "@constants/code";
@@ -75,55 +76,20 @@ export default function Table({ data, isDesktop }: RegistrationListDataProps & R
       >
         <table className="_responsive-table _col-9-type">
           <caption className="_hidden-table-caption">등기관리 표</caption>
-          <thead>
-            <tr>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  진행상태
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  대출실행일
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  접수보고일시
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰번호
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  채권자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  채무자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  법무대리인
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  등기자료
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  등기접수증
-                </Typography>
-              </th>
-            </tr>
-          </thead>
+          <TableHead
+            isDesktop={isDesktop}
+            labels={[
+              "진행상태",
+              "대출실행일",
+              "접수보고일시",
+              "의뢰번호",
+              "채권자",
+              "채무자",
+              "법무대리인",
+              "등기자료",
+              "등기접수증",
+            ]}
+          />
           <tbody>
             {data?.rgstrMngrList?.map((item: RegistrationItemData) => {
               const { statNm, execDt, acptRptDtm, rqstNo, bndMembNm, dbtrNm, lgagMembNm, statCd } =
@@ -139,16 +105,8 @@ export default function Table({ data, isDesktop }: RegistrationListDataProps & R
                       {statNm}
                     </Typography>
                   </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {execDt}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {acptRptDtm || "-"}
-                    </Typography>
-                  </td>
+                  <BodyCell isDesktop={isDesktop}>{execDt}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{acptRptDtm || "-"}</BodyCell>
                   <td>
                     <Link href={AD_REGISTRATION_DETAIL + `/${rqstNo}`}>
                       <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
@@ -156,21 +114,9 @@ export default function Table({ data, isDesktop }: RegistrationListDataProps & R
                       </Typography>
                     </Link>
                   </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {bndMembNm || "-"}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {dbtrNm || "-"}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {lgagMembNm || "-"}
-                    </Typography>
-                  </td>
+                  <BodyCell isDesktop={isDesktop}>{bndMembNm || "-"}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{dbtrNm || "-"}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{lgagMembNm || "-"}</BodyCell>
                   <td>
                     {statCd === PROC_STAT_CD.REQUEST || statCd === PROC_STAT_CD.SUPPLEMENT ? (
                       /* 배정완료 이전까지는 배정버튼 노출 */

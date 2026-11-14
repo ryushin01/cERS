@@ -4,6 +4,7 @@ import { Dispatch, useState } from "react";
 
 import { Button } from "@components/button";
 import { ResponsiveSwiper, Typography } from "@components/common";
+import { BodyCell, TableHead } from "@components/common/TableCell";
 import { Grid, GridItem } from "@components/layout";
 import { Modal } from "@components/modal";
 import RegistrationDataDetail from "@components/status-inquiry/RegistrationDataDetail";
@@ -84,55 +85,18 @@ export default function Table({
       <div className="_responsive-table-inner-wrapper _has-thead">
         <table className="_responsive-table _col-5-type">
           <caption className="_hidden-table-caption">전자등기 의뢰목록 미배정 표</caption>
-          <thead>
-            <tr>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰번호
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  대출실행일
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰일시
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  진행상태
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  등기자료
-                </Typography>
-              </th>
-            </tr>
-          </thead>
+          <TableHead
+            isDesktop={isDesktop}
+            labels={["의뢰번호", "대출실행일", "의뢰일시", "진행상태", "등기자료"]}
+          />
           <tbody>
             {data?.rqstList?.map((item: RequestListItemData) => {
               const { rqstNo, execDt, crtDtm, statNm, statCd } = item;
               return (
                 <tr key={rqstNo}>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {rqstNo}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {execDt}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {crtDtm}
-                    </Typography>
-                  </td>
+                  <BodyCell isDesktop={isDesktop}>{rqstNo}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{execDt}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{crtDtm}</BodyCell>
                   <td>
                     <Typography
                       kind={isDesktop ? "title-medium" : "body-medium"}

@@ -1,7 +1,7 @@
 # cERS - 전자등기 관리 시스템
 
 [![CI](https://github.com/ryushin01/cERS/actions/workflows/ci.yml/badge.svg)](https://github.com/ryushin01/cERS/actions/workflows/ci.yml)
-![version](https://img.shields.io/badge/version-2.1.2-113662)
+![version](https://img.shields.io/badge/version-2.2.1-113662)
 ![Storybook](https://img.shields.io/badge/Storybook-10-FF4785?logo=storybook&logoColor=white)
 
 금융기관·관리자용 부동산 전자등기 관리 웹 애플리케이션의 프론트엔드입니다. **cERS**는 **c**ore **E**lectronic **R**egistration **S**ystem의 줄임말입니다.
@@ -62,7 +62,7 @@
 
 | 구분 | 사용 기술 |
 |---|---|
-| 프레임워크 | Next.js 16 (App Router), React 19, TypeScript |
+| 프레임워크 | Next.js 15 (App Router), React 19, TypeScript |
 | 상태·데이터 | TanStack Query v5, jotai, axios, js-cookie |
 | 스타일·UI | Tailwind CSS 3, antd(파일 업로드), swiper, react-datepicker |
 | 품질 | ESLint(import 정렬), Prettier, husky + lint-staged, Vitest + React Testing Library, fast-check, Storybook 스토리 테스트(Vitest 브라우저 모드 + Playwright, axe 접근성 검사), E2E 테스트(Playwright) |
@@ -112,7 +112,7 @@ src/
 ├─ styles/       스타일
 ├─ types/        공용 타입
 ├─ utils/        유틸리티
-└─ proxy.ts 사용자 유형별 접근 제어
+└─ middleware.ts 사용자 유형별 접근 제어
 ```
 
 ## 문서
@@ -124,4 +124,11 @@ src/
 | [Storybook](docs/storybook.md) | 구성, 스토리 테스트, 배포, 바로 가기 버튼 |
 | [CI · Docker](docs/ci-docker.md) | GitHub Actions, Dependabot, Docker |
 | [에디터 설정](docs/editor-setup.md) | IntelliJ, VS Code |
+| [시퀀스 다이어그램](docs/sequence-diagrams.md) | 로그인과 화면 이동, API 요청 경로(목업 어댑터), 관리자 배정 등록 |
 | [버전 기록](CHANGELOG.md) | 버전별 변경 내용 |
+
+## 출처
+
+| 자료 | 저작자 | 사용 허락 | 원본 |
+|---|---|---|---|
+| Pretendard 글꼴 | 길형진(orioncactus) | SIL OFL 1.1 | [orioncactus/pretendard](https://github.com/orioncactus/pretendard) |

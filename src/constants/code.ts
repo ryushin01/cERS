@@ -24,12 +24,6 @@ export const ATTC_FIL_CD = {
 // 관할법원코드
 export const JUDT_COURT_CD = "JUDT_COURT_CD";
 
-// 지번주소구분 코드
-export const LOTNUM_ADDR_GB_CD = "LOTNUM_ADDR_GB_CD";
-
-// 회원정보 유형
-export const MEMB_GB_CD = "MEMB_GB_CD";
-
 // 부동산구분 코드
 export const REALE_CD = "REALE_CD";
 

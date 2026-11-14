@@ -17,37 +17,17 @@ export default function Main() {
   const { isDesktop } = useResponsive();
   const [tabSelection, setTabSelection] = useState<string>("00");
 
-  const TAB_LIST = [
-    {
-      label: "미배정",
-      content: <List tabSelection={tabSelection} isDesktop={isDesktop} />,
-    },
-    {
-      label: "배정완료",
-      content: <List tabSelection={tabSelection} isDesktop={isDesktop} />,
-    },
-    {
-      label: "진행보류",
-      content: <List tabSelection={tabSelection} isDesktop={isDesktop} />,
-    },
-    {
-      label: "진행취소",
-      content: <List tabSelection={tabSelection} isDesktop={isDesktop} />,
-    },
+  /* 탭과 목록 조회 코드 (00 미배정, 01 배정완료, 02 진행보류, 03 진행취소) */
+  const TABS = [
+    { label: "미배정", code: "00" },
+    { label: "배정완료", code: "01" },
+    { label: "진행보류", code: "02" },
+    { label: "진행취소", code: "03" },
   ];
+  const list = <List tabSelection={tabSelection} isDesktop={isDesktop} />;
+  const TAB_LIST = TABS.map(({ label }) => ({ label, content: list }));
 
-  const handleTabChange = (index: number) => {
-    switch (index) {
-      case 0:
-        return setTabSelection("00");
-      case 1:
-        return setTabSelection("01");
-      case 2:
-        return setTabSelection("02");
-      case 3:
-        return setTabSelection("03");
-    }
-  };
+  const handleTabChange = (index: number) => setTabSelection(TABS[index]?.code ?? "00");
 
   return (
     <>

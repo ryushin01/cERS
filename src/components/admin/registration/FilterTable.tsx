@@ -8,6 +8,7 @@ import { DatePicker, Typography } from "@components/common";
 import { Form, InputField, Select } from "@components/form";
 import { PERIOD_EXPANDED_OPTION } from "@constants/option";
 import { PERIOD_LIST } from "@constants/period";
+import { ADMIN_SEARCH_RQSTNO_KEY } from "@constants/storage";
 import { useDatePicker } from "@hooks";
 import { ResponsiveType } from "@types";
 import { getDateString } from "@utils/dateUtil";
@@ -66,7 +67,7 @@ export default function FilterTable({
     // ButtonGroup 리셋
     setSelectedButtonGroup([]);
     setRequestNo("");
-    sessionStorage?.removeItem("admin-rqstno");
+    sessionStorage?.removeItem(ADMIN_SEARCH_RQSTNO_KEY);
     setFilters({ ...filters, rqstNo: "", fromDate: "", toDate: "" });
   };
 

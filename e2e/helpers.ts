@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 export type UserType = "financial" | "admin";
 
@@ -219,5 +219,3 @@ export function findBrokenImages(page: Page) {
       .map((image) => image.getAttribute("src")),
   );
 }
-
-export { expect };

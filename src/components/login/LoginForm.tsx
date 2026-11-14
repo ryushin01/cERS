@@ -14,6 +14,7 @@ import { AUTH_LIST, DEMO_ADMIN_AUTH, DEMO_FINANCIAL_AUTH, MEMB_GB_CD } from "@co
 import { isDemoMode } from "@constants/env";
 import { ID_INPUT, ID_SAVER, PASSWORD_INPUT } from "@constants/input";
 import { AD_ASSIGN, FI_HOME } from "@constants/path";
+import { SAVED_USER_ID_KEY } from "@constants/storage";
 import { useRadio } from "@hooks";
 import { postLoginData } from "@services/login";
 import { authAtom, toastState } from "@stores";
@@ -46,10 +47,9 @@ export default function LoginForm({ isDesktop }: ResponsiveType) {
 
   /* 페이지 렌더링시점에 로컬스토리지에 저장된 userId가 있으면 id에 form 재세팅 및 체크박스 활성화 */
   useEffect(() => {
-    const getUserId = localStorage.getItem("userId");
+    const getUserId = localStorage.getItem(SAVED_USER_ID_KEY);
     if (getUserId) {
       // localStorage는 브라우저에만 있어 하이드레이션 뒤에 읽어야 합니다.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({ id: getUserId, pwd: "", membGbCd: "00" });
       setIsChecked(true);
     }
@@ -77,9 +77,9 @@ export default function LoginForm({ isDesktop }: ResponsiveType) {
 
         // 3. id 저장 true이면 로컬스토리지에 userId 저장 false 이면 삭제
         if (isChecked) {
-          localStorage.setItem("userId", form.id);
+          localStorage.setItem(SAVED_USER_ID_KEY, form.id);
         } else {
-          localStorage.removeItem("userId");
+          localStorage.removeItem(SAVED_USER_ID_KEY);
         }
 
         // 4. 1초 후 membGbCd에 따라서 페이지 이동

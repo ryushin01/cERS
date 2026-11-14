@@ -10,6 +10,7 @@ import { Select } from "@components/form";
 import { Grid, GridItem } from "@components/layout";
 import { NUMERIC_SORT_OPTION, PERIOD_SORT_OPTION } from "@constants/option";
 import { PAGE_COUNT_PC } from "@constants/page";
+import { ADMIN_SEARCH_RQSTNO_KEY } from "@constants/storage";
 import { useAdjustState } from "@hooks";
 import { getRegistrationListData } from "@services/registrationManagement";
 import { toastState } from "@stores";
@@ -90,17 +91,16 @@ export default function List({
   //헤더 의뢰번호 검색 후 처리
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedRqstNo = sessionStorage.getItem("admin-rqstno");
+      const storedRqstNo = sessionStorage.getItem(ADMIN_SEARCH_RQSTNO_KEY);
       if (storedRqstNo) {
         // sessionStorage는 브라우저에만 있어 하이드레이션 뒤에 읽어야 합니다.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFilters((prev) => ({ ...prev, rqstNo: storedRqstNo }));
       }
     }
 
     return () => {
       if (typeof window !== "undefined") {
-        sessionStorage.removeItem("admin-rqstno");
+        sessionStorage.removeItem(ADMIN_SEARCH_RQSTNO_KEY);
       }
     };
   }, []);

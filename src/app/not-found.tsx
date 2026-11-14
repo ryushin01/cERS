@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@components/button";
 import { Typography } from "@components/common";
@@ -10,16 +10,10 @@ import { isPathUnder } from "@utils/pathUtil";
 
 export default function NotFound() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isMobile } = useResponsive();
-  let prevPath;
-
-  if (typeof window !== "undefined") {
-    prevPath = sessionStorage.getItem("prevPath");
-  }
-
-  const goToFIHome = () => router.push(FI_HOME);
-
-  const goToADHome = () => router.push(AD_ASSIGN);
+  /* 찾지 못한 주소가 관리자 영역이면 관리자 홈, 아니면 금융기관 홈으로 보냅니다. */
+  const home = isPathUnder(pathname, AD_PATH) ? AD_ASSIGN : FI_HOME;
 
   return (
     <section className="_error-page _full">
@@ -48,7 +42,7 @@ export default function NotFound() {
             shape="solid"
             size={isMobile ? "sm" : "lg"}
             color="main100"
-            onClick={isPathUnder(prevPath, AD_PATH) ? goToADHome : goToFIHome}
+            onClick={() => router.push(home)}
           >
             홈으로 이동하기
           </Button>

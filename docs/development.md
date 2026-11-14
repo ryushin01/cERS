@@ -26,7 +26,9 @@ pnpm install
 pnpm run dev
 ```
 
-> Next.js 16은 Node.js 20.9 이상, Storybook 10은 Node.js 20.19 이상이 필요합니다. 저장소 기준인 Node.js 22를 사용하세요.
+> Next.js 15는 Node.js 18.18 이상, Storybook 10은 Node.js 20.19 이상이 필요합니다. 저장소 기준인 Node.js 22를 사용하세요.
+
+> cERS는 레거시 시스템이라 Next.js 15(`src/middleware.ts`)에 머뭅니다. Next.js 16(`proxy.ts`)으로 올리지 않고 15 계열의 보안 패치만 받습니다(`CLAUDE.md`).
 
 ## 주요 스크립트
 
@@ -103,7 +105,7 @@ pnpm run dev
 │ ├── 🗂️ styles                               // 전역 및 모듈화된 스타일 파일
 │ ├── 🗂️ types                                // 공용 타입 (common, file, home, assign)
 │ ├── 🗂️ utils                                // 공통 유틸리티 함수
-│ └── 📄 proxy.ts                             // 사용자 유형(membGbCd)별 접근 경로 제어
+│ └── 📄 middleware.ts                        // 사용자 유형(membGbCd)별 접근 경로 제어
 │
 ├── 📄 eslint.config.mjs                      // ESLint 설정 (import 정렬 규칙 포함)
 ├── 📄 tailwind.config.ts                     // 디자인 토큰(색상·z-index 등), 공통 클래스(_flex-center) 플러그인
@@ -158,6 +160,13 @@ pnpm run dev
 - 금액 입력은 `utils/amountUtil`로 처리합니다: 원 단위 정수만(부호·소수점·문자 무시), 최대 15자리, 0원은 제출 불가. 저장 요청 버튼은 `useSubmitLock`으로 중복 제출을 막습니다.
 - 저장 요청은 보낼 데이터를 `mutate(데이터)`로 직접 넘깁니다. (상태를 바꾼 직후 `mutate()`를 호출하고 `mutationFn`이 상태를 읽으면, 실행 시점에 따라 이전 값이 전송될 수 있음)
 - 처리 사유(반려·진행취소·보완요청)에서 "기타"는 코드 `99`이고, 직접 입력한 문구를 보냅니다(`codeUtil.getReasonText`).
+- 로그인 정보는 `sessionStorage`의 `AUTH_STORAGE_KEY`(`src/stores/authStore.ts`)에 둡니다. 저장·요청·로그아웃 모두 이 상수를 쓰고, 요청 인터셉터는 `readAccessToken()`으로 토큰을 읽습니다. 값이 손상되었으면 빈 토큰으로 보고 로그아웃 상태로 요청합니다.
+- 다른 브라우저 저장소 키(헤더 검색 의뢰번호, 아이디 저장)는 `src/constants/storage.ts`에 둡니다. 화면에 문자열로 적지 않습니다.
+- 목록 표의 머리 줄은 `TableHead`(칸 이름 배열), 글자만 든 칸은 `BodyCell`(`components/common/TableCell.tsx`)을 씁니다. 링크·버튼이 든 칸은 `td`를 직접 씁니다.
+- "제목 + 항목/값" 표는 `InfoTableSection`을 씁니다. 제목 옆 버튼은 `actions`로 넘깁니다.
+- 보완요청·진행취소처럼 사유를 골라 처리하는 모달은 `ProcessReasonModal`(`kind`)을 씁니다. "기타"(99)를 고르면 직접 입력합니다.
+- 첨부 파일 수·전체 용량 검사는 `getAttachmentLimitMessage`(`utils/fileUtil.ts`)로 합니다.
+- 탭 목록은 탭 이름과 조회 코드를 한 배열(`TABS`)에 두고, 탭 번호로 코드를 찾습니다. 탭 순서를 바꿀 때 코드가 어긋나지 않게 하기 위해서입니다.
 
 ### 단위 테스트
 
@@ -167,7 +176,7 @@ pnpm run dev
 | 종류 | 위치 | 내용 |
 |---|---|---|
 | 단위 | `utils`, `hooks`, `stores`, `components/button`, `components/modal`, `components/login` | 유틸 함수, 커스텀 훅(화면 크기 판단은 첫 렌더링부터 맞는지 포함), 토스트, Button, 모달 접근성, Storybook 바로 가기(전환 후 이동·중복 클릭·동작 줄이기·새 탭) |
-| 라우팅 | `proxy.test.ts` | 사용자 유형별 접근 경로 리다이렉트, Storybook 경로 통과 |
+| 라우팅 | `middleware.test.ts` | 사용자 유형별 접근 경로 리다이렉트, Storybook 경로 통과 |
 | API 요청 | `services/services.test.ts` | services가 만드는 요청(메서드·주소·쿼리·본문). 검색어에 `&`·`#` 같은 문자가 있어도 그대로 전달되는지 |
 | 데모 데이터 | `mocks/data.test.ts`, `mocks/adapter.test.ts` | 목업 데이터가 업무 규칙과 맞는지, 목업 API의 응답·상태 변경 |
 | 화면 통합 | `components/**/Main.test.tsx` | 화면을 실제 데이터 흐름(TanStack Query → services → 목업 API)으로 렌더링해 목록·건수가 데이터와 같은지 |
@@ -182,7 +191,7 @@ pnpm run dev
 - 오류 화면: 페이지별 `CustomErrorBoundary`가 먼저 받고, 그 바깥이나 바운더리가 없는 페이지의 오류는 `app/error.tsx`, 루트 레이아웃 오류는 `app/global-error.tsx`가 받습니다. 없는 주소는 `app/not-found.tsx`입니다.
 - 화면 통합 테스트는 `src/test/renderWithProviders.tsx`(QueryClient·jotai Provider, PC 화면 `matchMedia`)를 쓰고, `next/navigation`은 테스트 파일에서 `vi.mock`으로 대신합니다.
 - tsconfig의 alias를 그대로 쓸 수 있습니다(`vite-tsconfig-paths`).
-- 서버 코드(`proxy.ts` 등)를 테스트할 때는 파일 맨 위에 `// @vitest-environment node`를 적습니다.
+- 서버 코드(`middleware.ts` 등)를 테스트할 때는 파일 맨 위에 `// @vitest-environment node`를 적습니다.
 - 테스트는 실행하는 PC의 시간대와 상관없이 같은 결과가 나오도록 작성합니다. 날짜 유틸은 테스트 안에서 여러 시간대(`process.env.TZ`)로 바꿔 가며 확인합니다.
 
 ### E2E 테스트

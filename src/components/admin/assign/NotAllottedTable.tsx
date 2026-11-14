@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@components/button";
 import { Typography } from "@components/common";
+import { BodyCell, TableHead } from "@components/common/TableCell";
 import { PROC_STAT_CD } from "@constants/code";
 import { AD_ASSIGN_DETAIL } from "@constants/path";
 
@@ -24,40 +25,10 @@ export default function Table({ isDesktop, data }: DefineProps) {
       <div className="_responsive-table-inner-wrapper _has-thead">
         <table className="_responsive-table _col-6-type">
           <caption className="_hidden-table-caption">배정관리 목록 표</caption>
-          <thead>
-            <tr>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  진행상태
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰번호
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  대출실행일
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰자
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  의뢰일시
-                </Typography>
-              </th>
-              <th>
-                <Typography kind={isDesktop ? "title-medium" : "body-medium"} isBold={true}>
-                  배정
-                </Typography>
-              </th>
-            </tr>
-          </thead>
+          <TableHead
+            isDesktop={isDesktop}
+            labels={["진행상태", "의뢰번호", "대출실행일", "의뢰자", "의뢰일시", "배정"]}
+          />
           <tbody>
             {data.map((item, idx) => {
               const { statNm, statCd, rqstNo, execDt, clientNm, crtDtm } = item;
@@ -75,26 +46,10 @@ export default function Table({ isDesktop, data }: DefineProps) {
                       {statNm}
                     </Typography>
                   </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {rqstNo}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {execDt}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {clientNm}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography kind={isDesktop ? "title-medium" : "body-medium"}>
-                      {crtDtm}
-                    </Typography>
-                  </td>
+                  <BodyCell isDesktop={isDesktop}>{rqstNo}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{execDt}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{clientNm}</BodyCell>
+                  <BodyCell isDesktop={isDesktop}>{crtDtm}</BodyCell>
                   <td>
                     <span className="_table-button-wrapper">
                       <Button
