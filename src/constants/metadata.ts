@@ -7,8 +7,11 @@ export const FAVICON = "/logo.svg";
 
 export const OG_IMAGE = "/og_image.png";
 
-/* 공유 미리보기(OG) 이미지 등 절대 URL 생성 기준 주소. 배포 시 NEXT_PUBLIC_SITE_URL로 지정 */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:4000";
+/*
+ * 공유 미리보기(OG) 이미지 등 절대 URL 생성 기준 주소. 다른 주소에 배포하면 NEXT_PUBLIC_SITE_URL로 지정합니다.
+ * 기본값을 localhost로 두면 운영의 og:image가 localhost를 가리켜 메신저·SNS가 미리보기 그림을 받지 못하므로 운영 주소로 둡니다.
+ */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ers-ryushin01.vercel.app";
 
 export const FI_HOME_METADATA = {
   TITLE: "홈 - 전자등기 관리 시스템",
