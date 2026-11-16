@@ -123,7 +123,7 @@ pnpm run dev
 | `NEXT_PUBLIC_APP_URI` | 금융기관/공통 API 서버 주소 (실제 모드) | - |
 | `NEXT_PUBLIC_ADMIN_URI` | 관리자 API 서버 주소 (실제 모드) | - |
 | `NEXT_PUBLIC_API_URI` | 외부 API 주소 (실제 모드) | - |
-| `NEXT_PUBLIC_SITE_URL` | 배포 주소. 링크 공유 미리보기(OG) 이미지의 절대 URL에 사용 | `http://localhost:4000` |
+| `NEXT_PUBLIC_SITE_URL` | 배포 주소. 링크 공유 미리보기(OG) 이미지의 절대 URL에 사용. 다른 주소에 배포할 때만 지정 | `https://ers-ryushin01.vercel.app` |
 | `NEXT_PUBLIC_STORYBOOK_URL` | 로그인 화면 **Storybook 바로 가기** 버튼의 이동 주소. Storybook을 다른 주소에 배포했을 때 지정 | 빌드: `/storybook` 소개 문서, 개발 서버: `http://localhost:6006` |
 
 실제 모드에서는 `.env.local`(로컬) 또는 `.env.development` / `.env.production`(Docker 빌드)에 값을 설정합니다. `.env*` 파일은 저장소에 포함하지 않습니다.
