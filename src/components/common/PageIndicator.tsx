@@ -20,7 +20,7 @@ type PageIndicatorProps = {
 
 export default function PageIndicator({ total = 0, page, limit }: PageIndicatorProps) {
   const { isDesktop } = useResponsive();
-  const allPageNum = Math.ceil(total / limit); // 총 페이지네이션 갯수
+  const allPageNum = Math.ceil(total / limit); // 총 페이지네이션 개수
 
   return (
     <div className="_page-indicator">

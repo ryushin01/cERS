@@ -148,7 +148,7 @@ export default function Table({
         unit: addrForm.unit,
       });
 
-      // code가 "99" 일때 토스트팝업
+      // code가 "99"일 때 토스트팝업
       if (response.code === "99") {
         openToast({
           message: "고유번호 조회에 실패하였습니다. 주소를 다시 확인해 주세요.",
@@ -242,7 +242,7 @@ export default function Table({
     if (!isValidAddrForm) {
       setAddrError(true); // 고유번호조회 인풋 에러
       openToast({
-        message: "주소를 모두 입력해주세요.",
+        message: "주소를 모두 입력해 주세요.",
         position: "top",
       });
       return;
@@ -250,7 +250,7 @@ export default function Table({
     getUnqRgstrNoData();
   };
 
-  /* 등기고유번호 조회 완료시 setUnqRgstrNo 데이터 set */
+  /* 등기고유번호 조회 완료 시 setUnqRgstrNo 데이터 set */
   useAdjustState([unqRgstrNoData, unqRgstrNoDataLoading], () => {
     if (unqRgstrNoData && !unqRgstrNoDataLoading) {
       setUnqRgstrNo(unqRgstrNoData.data);
@@ -378,7 +378,7 @@ export default function Table({
     }
     if (isUploadDisabled && isMaxSizeExceeded) {
       openToast({
-        message: `업로드 가능한 전체 용량은 최대 20MB입니다. 용량을 조정해 주세요.”`,
+        message: `업로드 가능한 전체 용량은 최대 20MB입니다. 용량을 조정해 주세요.`,
         position: "top",
       });
       return;
@@ -585,7 +585,7 @@ export default function Table({
                         </ul>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {/* 01 , 02 일때 bldg 영역노출 */}
+                        {/* 01, 02일 때 bldg 영역 노출 */}
                         {(radioValue === "01" || radioValue === "02") && (
                           <div className="flex items-center flex-1 min-w-[100px] gap-x-2 [&>div:first-child]:w-[70%]">
                             <InputField
@@ -603,7 +603,7 @@ export default function Table({
                             </Typography>
                           </div>
                         )}
-                        {/* 01 , 03 일때 unit 영역노출 */}
+                        {/* 01, 03일 때 unit 영역 노출 */}
                         {(radioValue === "01" || radioValue === "03") && (
                           <div className="flex items-center flex-1 min-w-[100px] gap-x-2 [&>div:first-child]:w-[70%]">
                             <InputField
@@ -702,7 +702,7 @@ export default function Table({
                     options={LAWYER_LIST_OPTION}
                     value={selectLawyer}
                     onChange={(e) => setSelectedLawyer(e.target.value)}
-                    // isError={isError}  TODO : 추후에 법무대리인 필수로 변경시 주석해제
+                    // isError={isError}  TODO : 추후에 법무대리인 필수로 변경 시 주석 해제
                   />
                 </td>
                 <td colSpan={3}></td>

@@ -155,6 +155,7 @@ pnpm run dev
 
 - 화면 크기 구분은 `useResponsive`를 사용합니다. `matchMedia`를 `useSyncExternalStore`로 읽기 때문에 브라우저에서 새로 그리는 화면은 첫 렌더링부터 맞는 레이아웃이 나옵니다. (첫 진입 시 서버 렌더링 결과는 PC 기준이며, 하이드레이션 직후 바뀝니다)
 - 접근성: 탭은 `TabGroup`(WAI-ARIA 탭 패턴, ←/→/Home/End 이동), 여러 버튼 중 하나를 고르는 그룹은 `ButtonGroup`(`aria-pressed`)을 사용합니다. 보이는 라벨이 없는 `Select`·`InputField`는 `ariaLabel`을 지정하고, `IconButton`은 이름(`children`)이 필수입니다. 모달·드로어 같은 대화상자의 초점 관리는 `useDialog`를 사용합니다.
+- 라디오·체크박스·파일 입력을 아이콘이나 버튼 모양 라벨로 대신 보일 때는 입력을 `display: none`(`hidden`)이 아니라 `sr-only`로 화면에서만 숨기고, 초점은 라벨에 표시합니다(`:has(input:focus-visible)`). `display: none`이면 키보드로 고를 수 없고 스크린 리더도 읽지 못합니다. 단위 테스트(jsdom)는 CSS를 적용하지 않아 이 문제를 잡지 못하므로 E2E(`keyboard.spec.ts`)로 확인합니다.
 
 - 여러 CSS 파일에서 `@apply`로 쓰는 공통 클래스(`_flex-center`)는 `tailwind.config.ts`의 플러그인에 정의합니다. `globals.css`의 `@layer`에 두면 그 파일이 먼저 처리될 때만 다른 파일에서 `@apply`가 동작합니다.
 - 금액 입력은 `utils/amountUtil`로 처리합니다: 원 단위 정수만(부호·소수점·문자 무시), 최대 15자리, 0원은 제출 불가. 저장 요청 버튼은 `useSubmitLock`으로 중복 제출을 막습니다.
@@ -184,7 +185,7 @@ pnpm run dev
 | 공통 동작 | `Pagination`·`TabGroup`·`LoginForm`·`HeaderRightArea`·`AccountLayer`·`DrawerContent`·`useLogout`·`useFileUpload` 테스트 | 페이지 이동, 탭 키보드 조작, 로그인, 헤더 의뢰번호 검색(Enter·버튼·없는 번호), 계정 메뉴 닫기와 초점, 비밀번호 변경, 로그아웃(데모·API·실패), 파일 개수·용량 제한 |
 | 검색 조건 | `status-inquiry/List`·`admin/registration/FilterTable`·`admin/assign/Main` 테스트 | 의뢰번호·진행상태·접수번호·채무자·기간 검색과 초기화, 헤더 검색 후 재검색, 한 페이지 개수와 쪽수, 배정관리 탭 |
 | 오류 화면 | `app/error.test.tsx` | 앱 전체 오류 화면의 다시 시도, 사용자 유형별 홈 이동 |
-| 스토리 | 모든 `*.stories.tsx` (`pnpm run test:storybook`) | 스토리 254개를 실제 브라우저에서 렌더링, 접근성 위반(axe) 검사 (스토리의 첫 화면 기준이라 레이아웃 잘림은 잡지 못함) |
+| 스토리 | 모든 `*.stories.tsx` (`pnpm run test:storybook`) | 스토리 258개를 실제 브라우저에서 렌더링, 접근성 위반(axe) 검사 (스토리의 첫 화면 기준이라 레이아웃 잘림은 잡지 못함) |
 | E2E | `e2e/` (`pnpm run test:e2e`) | 아래 [E2E 테스트](#e2e-테스트) 참고 |
 | 속성 기반 | `utils/amountUtil.test.ts`, `utils/dateUtil.test.ts` | [fast-check](https://fast-check.dev)로 임의 입력 수천 건을 생성해 금액·날짜 변환 규칙이 항상 지켜지는지 (예: 금액 표시 → 숫자 변환 시 원래 값, 모든 시간대에서 같은 날짜) |
 
@@ -207,7 +208,7 @@ pnpm run test:e2e
 |---|---|
 | `e2e/layout.spec.ts` | 폭 320~1920px 8단계에서 가로 넘침, 잘린 버튼·입력칸, 사라진 입력칸, 줄바꿈된 탭, 잘못된 요소 중첩, 잘린 표 글자(항목 이름은 375px 이상, 값은 1024px 이상), 모바일 헤더 로고 |
 | `e2e/accessibility.spec.ts` | PC·태블릿·모바일 전 화면의 접근성(axe), 콘솔 오류, 요청 실패, 깨진 이미지. 모달·달력·계정 메뉴·드로어를 연 상태와 아코디언 열림 상태 |
-| `e2e/keyboard.spec.ts` | 본문 바로가기, Tab 이동 시 초점 표시, 계정 메뉴·드로어 Esc 닫기와 초점 복귀, 의뢰번호 입력 |
+| `e2e/keyboard.spec.ts` | 본문 바로가기, Tab 이동 시 초점 표시, 계정 메뉴·드로어 Esc 닫기와 초점 복귀, 의뢰번호 입력, 로그인 화면을 키보드만으로 사용자 유형·아이디 저장 선택 후 로그인, 등기자료 추가(파일 선택)를 키보드로 열기 |
 | `e2e/flow.spec.ts` | 사용자 유형을 넘나드는 업무 흐름: 보완요청, 신규 의뢰 → 배정, 보완 후 재제출, 접수 → 승인 → 금융기관 반영, 헤더 의뢰번호 검색, 현황조회·등기관리 검색 |
 | `e2e/storybook.spec.ts` | Storybook 바로 가기 전환·도착 애니메이션, 뒤로 가기, 로그인 상태 접근, 동작 줄이기 설정 |
 
@@ -223,3 +224,9 @@ pnpm run test:e2e
 - 스크린 리더(VoiceOver, NVDA 등) 실사용 점검
 - KWCAG 6.1.3 조작 가능: 공식 기준 수치와 대조 필요 (현재 표 안 링크 높이 19px, 라디오 20px)
 - KWCAG 33개 항목 전체 수동 점검
+
+v2.2.3 검수에서 찾았지만 화면 구성을 바꿔야 해서 그대로 둔 항목입니다.
+
+- 등기자료 이미지 슬라이드: 폭 1366px 이하에서 이전·다음 버튼을 숨겨(`responsive-swiper.css`) 끌기로만 넘깁니다. 키보드로는 2쪽 이후를 볼 수 없습니다(KWCAG 6.1.1, 6.5.1 단일 포인터).
+- 브레드크럼이 이름 있는 `nav`로 감싸져 있지 않고, 현재 쪽에 `aria-current="page"`가 없습니다.
+- 로그인 화면의 사용자 유형 라디오 묶음에 묶음 이름(`fieldset`·`legend`)이 없습니다.

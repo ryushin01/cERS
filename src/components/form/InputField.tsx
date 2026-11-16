@@ -48,13 +48,13 @@ type InputFieldProps = {
  * @property {boolean} required    - 라벨과 인풋의 필수 표시 여부를 정의합니다.
  * @property {boolean} disabled    - 인풋의 비활성화 상태를 정의합니다.
  * @property {function} onChange   - 인풋 작성시 실행할 함수를 위해 미리 정의합니다.
- * @property {function} onClick    - 인풋 클릭시 실행할 함수를 위해 미리 정의합니다.
+ * @property {function} onClick    - 인풋 클릭 시 실행할 함수를 위해 미리 정의합니다.
  * @property {string} placeholder  - 인풋의 힌트 텍스트를 정의합니다.
  * @property {string} name         - 인풋의 이름을 정의합니다.
  * @property {string} inputMessage - 포커스시 인풋 하단 텍스트 내용을 정의합니다.
- * @property {string} errorMessage - 에러시 인풋 하단 텍스트 내용을 정의합니다.
+ * @property {string} errorMessage - 에러 시 인풋 하단 텍스트 내용을 정의합니다.
  * @property {string} inputSize    - 인풋 크기를 정의합니다.
- * @property {string} className    - 스타일을 추가할때 사용할 클래스명을 정의합니다.
+ * @property {string} className    - 스타일을 추가할 때 사용할 클래스명을 정의합니다.
  * @property {boolean} readOnly    - 인풋의 리드은리 상태를 정의합니다.
  */
 export default function InputField({

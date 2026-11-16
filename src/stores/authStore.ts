@@ -1,6 +1,6 @@
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 
-/* autoAtom 기본 폼 */
+/* authAtom 기본 폼 */
 type AuthAtom = {
   lognYn: boolean;
   resCd: string;
@@ -15,7 +15,7 @@ type AuthAtom = {
   refreshToken: string;
 };
 
-/* autoAtom 초기값 */
+/* authAtom 초기값 */
 const initValue: AuthAtom = {
   lognYn: false,
   resCd: "",
@@ -52,5 +52,5 @@ function readAccessToken(): string {
   }
 }
 
-/* autoAtom 내보내기 */
+/* authAtom 내보내기 */
 export { AUTH_STORAGE_KEY, authAtom, readAccessToken };

@@ -30,7 +30,7 @@ export default function Main() {
     },
   });
 
-  /* 2. page 또는 size 변경시 api 재조회 */
+  /* 2. page 또는 size 변경 시 api 재조회 */
   useEffect(() => {
     getBoardListData();
   }, [page, isDesktop, getBoardListData]);

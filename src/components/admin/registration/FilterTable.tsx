@@ -141,7 +141,7 @@ export default function FilterTable({
     <div className="_filter-table-wrapper mt-6">
       <Form
         onSubmit={handleSubmit}
-        legendText="전자등기 현황조회 검색 필터 양식"
+        legendText="등기관리 검색 필터 양식"
         isHiddenLegend={true}
         onInput={formMonitoring}
       >

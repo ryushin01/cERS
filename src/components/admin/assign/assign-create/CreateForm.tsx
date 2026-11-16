@@ -254,7 +254,7 @@ export default function CreateForm() {
     if (!selectedRealEstate || selectedRealEstate === "") {
       setRealeError(true); // 부동산구분 셀렉트 에러
       openToast({
-        message: "부동산 구분을 선택해주세요.",
+        message: "부동산 구분을 선택해 주세요.",
         position: "top",
       });
       return;
@@ -275,7 +275,7 @@ export default function CreateForm() {
     getUnqRgstrNoData();
   };
 
-  /* 등기고유번호 조회 완료시 setUnqRgstrNo 데이터 set */
+  /* 등기고유번호 조회 완료 시 setUnqRgstrNo 데이터 set */
   useEffect(() => {
     if (unqRgstrNoData?.code === "99") {
       openToast({
@@ -521,10 +521,11 @@ export default function CreateForm() {
               <label htmlFor="registration-data-input-file" className="_file-uploader">
                 등기자료 추가
               </label>
+              {/* 화면에서만 숨겨 키보드로도 파일을 고를 수 있게 둡니다. (초점은 라벨에 표시) */}
               <input
                 type="file"
                 id="registration-data-input-file"
-                className="hidden"
+                className="sr-only"
                 accept=".jpg, .jpeg, .png"
                 multiple
                 onChange={handleFileChange}
@@ -689,7 +690,7 @@ export default function CreateForm() {
                             </ul>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            {/* 01 , 02 일때 bldg 영역노출 */}
+                            {/* 01, 02일 때 bldg 영역 노출 */}
                             {(radioValue === "01" || radioValue === "02") && (
                               <div className="flex items-center flex-1 min-w-[100px] gap-x-2 [&>div:first-child]:w-[70%]">
                                 <InputField
@@ -707,7 +708,7 @@ export default function CreateForm() {
                                 </Typography>
                               </div>
                             )}
-                            {/* 01 , 03 일때 unit 영역노출 */}
+                            {/* 01, 03일 때 unit 영역 노출 */}
                             {(radioValue === "01" || radioValue === "03") && (
                               <div className="flex items-center flex-1 min-w-[100px] gap-x-2 [&>div:first-child]:w-[70%]">
                                 <InputField

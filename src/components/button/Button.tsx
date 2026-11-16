@@ -29,7 +29,7 @@ type ButtonProps = {
  * @property {string} color          - 버튼 색상을 정의합니다.
  * @property {string} icon           - 버튼의 아이콘을 정의합니다.
  * @property {string} iconPosition   - 버튼의 아이콘 위치를 정의합니다.
- * @property {function} onClick      - 버튼 클릭시 동작을 위해 정의합니다.
+ * @property {function} onClick      - 버튼 클릭 시 동작을 위해 정의합니다.
  * @property {boolean} disabled      - 버튼의 비활성화 상태를 정의합니다.
  * @property {boolean} isPressed     - 버튼 그룹에서 선택된(눌린) 버튼 표시 (aria-pressed)
  * @property {boolean} isExpanded    - 메뉴를 여는 버튼의 열림 상태 (aria-expanded)

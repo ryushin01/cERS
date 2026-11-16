@@ -174,7 +174,7 @@ export default function MobileFileUploader({
     // 1. 미리보기 비활성화
     closePreview();
 
-    // 2. 임시 이미지 목록 배열 초기회
+    // 2. 임시 이미지 목록 배열 초기화
     setTempImageList([]);
 
     // 3. 임시 파일 목록 배열 초기화

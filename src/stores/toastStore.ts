@@ -5,9 +5,9 @@ import { atom } from "jotai";
  * @name Toast
  * @version 1.0.0
  * @author 류창선 <ryushin0167@gmail.com>
- * @property {string} message     - 토스트팝업에 표시될 메세지
+ * @property {string} message     - 토스트팝업에 표시될 메시지
  * @property {string} position    - 토스트팝업 위치
- * @property {function} afterFunc - 토스트팝업 노출후 진행 할 동작
+ * @property {function} afterFunc - 토스트팝업 노출 후 진행할 동작
  * @property {boolean} isOpen     - 토스트팝업 상태
  */
 

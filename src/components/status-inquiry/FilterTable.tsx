@@ -142,7 +142,7 @@ export default function FilterTable({ isDesktop, setFilters, rqstNo }: definePro
         toDate: newEndDate,
       };
     }
-    // 버튼그룹 선택시 업데이트
+    // 버튼 그룹 선택 시 업데이트
     if (selectedButtonGroup) {
       const getTrueIndex = selectedButtonGroup.findIndex((val) => val === true);
 

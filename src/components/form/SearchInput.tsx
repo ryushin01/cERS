@@ -33,7 +33,7 @@ type SearchInputProps = {
  * @property {boolean} isFocus     - 인풋의 포커스 상태를 정의합니다.
  * @property {string} name         - 인풋의 이름을 정의합니다.
  * @property {string} defaultValue - 인풋에 입력된 값을 정의합니다.
- * @property {function} onClick    - 버튼 클릭시 동작을 위해 정의합니다.
+ * @property {function} onClick    - 버튼 클릭 시 동작을 위해 정의합니다.
  */
 
 export default function SearchInput({

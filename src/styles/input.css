@@ -253,7 +253,7 @@ input::placeholder {
     @apply border-none;
 }
 
-/* labeltext가 있을때 Input*/
+/* labelText가 있을 때 Input */
 ._label-text-input {
     @apply border border-ers-grayscale-40 rounded-lg bg-ers-grayscale-0 px-4 w-full overflow-hidden;
 
@@ -282,7 +282,7 @@ input::placeholder {
     }
 }
 
-/* labelText만 있을때 label */
+/* labelText만 있을 때 label */
 ._only-label {
     @apply flex border-none;
 

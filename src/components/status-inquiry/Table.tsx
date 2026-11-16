@@ -44,7 +44,7 @@ export default function Table({ isDesktop, data, setQueryTime }: contentsProps) 
     close: closeRegistrationReceiptModal,
   } = useDisclosure();
 
-  /* 등기자료 모달 오픈 - 조건에 따라서 의뢰목록 등기자료 | 등기현황 등기자료 오픈 구분 & rqstNo 셋팅 */
+  /* 등기자료 모달 오픈 - 조건에 따라서 의뢰목록 등기자료 | 등기현황 등기자료 오픈 구분 & rqstNo 세팅 */
   const handleOpenModal = (rqstNo: string, statCd: string) => {
     setRequestNo(rqstNo);
 
@@ -56,7 +56,7 @@ export default function Table({ isDesktop, data, setQueryTime }: contentsProps) 
     }
   };
 
-  /* 접수완료인 경우에만 등기현황 등기자료 모달 오픈 & rqstNo 셋팅 */
+  /* 접수완료인 경우에만 등기현황 등기자료 모달 오픈 & rqstNo 세팅 */
   const handleOpenRegistrationReceiptModal = (rqstNo: string) => {
     setRequestNo(rqstNo);
     openRegistrationReceiptModal();

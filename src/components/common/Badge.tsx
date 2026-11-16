@@ -46,7 +46,7 @@ const getClassName = (colorType: string, type: string) => {
 };
 
 export default function Badge({ type, colorType, children }: BadgeProps) {
-  /* type && children === number 이면 999 이상일때 999+로 표시, type === text이면 children 표시 */
+  /* type && children === number 이면 999 이상일 때 999+로 표시, type === text이면 children 표시 */
   const displayValue =
     type === "number" && typeof children === "number"
       ? children > 999

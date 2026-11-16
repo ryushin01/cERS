@@ -39,12 +39,12 @@ export default function Main() {
   /* 탭이 바뀌면 그 탭의 조회 코드로 */
   const handleTabChange = (index: number) => setTabCode(TABS[index]?.code ?? "00");
 
-  /* 의뢰번호 입력시 searchRqstNo 값 셋팅 */
+  /* 의뢰번호 입력 시 searchRqstNo 값 세팅 */
   const handleFormChange = (event: ChangeEvent<HTMLFormElement>) => {
     setsearchRqstNo(event.target.value);
   };
 
-  /* 검색버튼 클릭시 searchRqstNo값 submittedRqstNo값에 셋팅 */
+  /* 검색 버튼 클릭 시 searchRqstNo 값을 submittedRqstNo 값에 세팅 */
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault(); // 페이지 새로고침 방지
     setSubmittedRqstNo(searchRqstNo);

@@ -112,7 +112,7 @@ export default function RegistrationInformation({
     }
   });
 
-  /* 관할법원 변경시 등기소 코드리스트 변경 */
+  /* 관할법원 변경 시 등기소 코드 목록 변경 */
   const handleJudtCourtChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectJudtCourt(value);
@@ -148,7 +148,7 @@ export default function RegistrationInformation({
           setFileList((prev) => [...prev, fileData]);
         } else {
           openToast({
-            message: `${newFile.name} 파일이 최대 업로드 용량(20MB)를 초과 하였습니다.`,
+            message: `${newFile.name} 파일이 최대 업로드 용량(20MB)을 초과하였습니다.`,
             position: "top",
           });
         }
@@ -192,7 +192,7 @@ export default function RegistrationInformation({
       }
     });
 
-    //최대 파일 갯수와 용량 모두 초과 시
+    //최대 파일 개수와 용량 모두 초과 시
     if (fileList.length > FILE_MAXIMUM_NUMBER && totalSize > FILE_MAXIMUM_SIZE) {
       openToast({
         message: `최대 ${FILE_MAXIMUM_NUMBER}개, 전체용량 ${FILE_MAXIMUM_SIZE_STRING}까지 업로드할 수 있습니다.\n개수 또는 용량을 조정해 주세요.`,
@@ -201,7 +201,7 @@ export default function RegistrationInformation({
       return;
     }
 
-    //최대 파일 갯수 초과 시
+    //최대 파일 개수 초과 시
     if (fileList.length > FILE_MAXIMUM_NUMBER) {
       openToast({
         message: `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.\n개수를 조정해 주세요.`,
@@ -279,7 +279,7 @@ export default function RegistrationInformation({
 
   //첨부파일 추가 시 개수 및 용량 체크
   useEffect(() => {
-    //최대 파일 갯수 초과 시
+    //최대 파일 개수 초과 시
     if (fileList.length > FILE_MAXIMUM_NUMBER) {
       openToast({
         message: `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.`,

@@ -194,10 +194,11 @@ export default function CreateForm({ isDesktop, rqstNo }: DefineProps) {
             >
               등기자료 추가
             </label>
+            {/* 화면에서만 숨겨 키보드로도 파일을 고를 수 있게 둡니다. (초점은 라벨에 표시) */}
             <input
               type="file"
               id="registration-data-input-file"
-              className="hidden"
+              className="sr-only"
               accept=".jpg, .jpeg, .png"
               multiple
               onChange={handleFileChange}

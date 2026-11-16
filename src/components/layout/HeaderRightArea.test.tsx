@@ -68,7 +68,7 @@ describe("의뢰번호 검색", () => {
 
     await userEvent.type(searchBox(), "DEMO-999999{Enter}");
 
-    await waitFor(() => expect(store.get(toastState).message).toContain("검색결과가 없습니다"), {
+    await waitFor(() => expect(store.get(toastState).message).toContain("검색 결과가 없습니다"), {
       timeout: 3000,
     });
     expect(location.href).toBe("");

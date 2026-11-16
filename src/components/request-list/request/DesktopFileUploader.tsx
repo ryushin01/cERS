@@ -157,7 +157,7 @@ export default function DesktopFileUploader({ requestNo }: requestProps) {
       }
     });
 
-    //최대 파일 갯수와 용량 모두 초과 시
+    //최대 파일 개수와 용량 모두 초과 시
     if (fileList.length > FILE_MAXIMUM_NUMBER && totalSize > FILE_MAXIMUM_SIZE) {
       openToast({
         message: `최대 ${FILE_MAXIMUM_NUMBER}개, 전체용량 ${FILE_MAXIMUM_SIZE_STRING}까지 업로드할 수 있습니다.\n개수 또는 용량을 조정해 주세요.`,
@@ -166,7 +166,7 @@ export default function DesktopFileUploader({ requestNo }: requestProps) {
       return;
     }
 
-    //최대 파일 갯수 초과 시
+    //최대 파일 개수 초과 시
     if (fileList.length > FILE_MAXIMUM_NUMBER) {
       openToast({
         message: `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.\n개수를 조정해 주세요.`,
@@ -218,14 +218,14 @@ export default function DesktopFileUploader({ requestNo }: requestProps) {
     accept: ".jpg, .jpeg, .png",
     showUploadList: false,
     listType: "text", // 업로드된 파일 목록의 표시 형식을 설정합니다.  'text' | 'picture' | 'picture-card'
-    //maxCount: 10, // 최대 업로드 파일 갯수
+    //maxCount: 10, // 최대 업로드 파일 개수
 
     onChange: handleChange,
     onRemove: handleRemove,
     beforeUpload: () => false, // 자동 업로드 방지
   };
 
-  //기 등록한 파일 정보 조회시 fileList에 추가
+  //기 등록한 파일 정보 조회 시 fileList에 추가
   useAdjustState([fileData], () => {
     setFileList(
       (fileData?.imgData ?? []).map((image: FileData) => ({
@@ -247,7 +247,7 @@ export default function DesktopFileUploader({ requestNo }: requestProps) {
 
   //첨부파일 추가 시 개수 및 용량 체크
   useEffect(() => {
-    //최대 파일 갯수 초과 시
+    //최대 파일 개수 초과 시
     if (fileList.length > FILE_MAXIMUM_NUMBER) {
       openToast({
         message: `최대 ${FILE_MAXIMUM_NUMBER}개까지 업로드할 수 있습니다.`,

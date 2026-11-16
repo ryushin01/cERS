@@ -41,7 +41,7 @@ const DEFAULT_ERROR_MESSAGE = "서버 통신 중 장애가 발생하였습니다
 /* HTTP 상태 코드별 사용자 안내 메시지 (400은 서버가 내려준 msg 사용) */
 const HTTP_ERROR_MESSAGES: Record<number, string> = {
   // Unauthorized: 인증되지 않은 사용자가 접근한 경우 → Provider에서 로그인 화면으로 이동
-  401: "미인증 사용자 입니다.\n로그인 화면으로 이동 합니다.",
+  401: "미인증 사용자입니다.\n로그인 화면으로 이동합니다.",
   // Forbidden: 클라이언트가 콘텐츠에 접근할 권한을 가지고 있지 않을 경우
   403: "접근 권한이 없습니다.",
   // Not Found: 존재하지 않는 API를 요청한 경우
