@@ -13,9 +13,9 @@ type GridItemProps = {
  * @version 1.0.0
  * @author 류창선 <ryushin0167@gmail.com>
  * @description X축 기준으로 화면은 12분할되어 있습니다.
- * @property {number} mobile        - 모바일 해상도(max-width: 767px)에서 차지할 화면 분할 갯수
- * @property {number} tablet        - 태블릿 해상도(min-width: 768px)에서 차지할 화면 분할 갯수
- * @property {number} desktop       - 데스크탑 해상도(min-width: 1280px)에서 차지할 화면 분할 갯수
+ * @property {number} mobile        - 모바일 해상도(max-width: 767px)에서 차지할 화면 분할 개수
+ * @property {number} tablet        - 태블릿 해상도(min-width: 768px)에서 차지할 화면 분할 개수
+ * @property {number} desktop       - 데스크톱 해상도(min-width: 1536px, 2xl)에서 차지할 화면 분할 개수
  */
 export default function GridItem({
   mobile,

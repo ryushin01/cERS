@@ -58,7 +58,7 @@ export default function HeaderRightArea() {
     queryKey: ["search-profile"],
     queryFn: async () => await getProfileData(),
     select: (response) => response.data,
-    enabled: authInfo?.membGbCd === MEMB_GB_CD.FINANCIAL, // 금융기관일때만 프로필 조회
+    enabled: authInfo?.membGbCd === MEMB_GB_CD.FINANCIAL, // 금융기관일 때만 프로필 조회
   });
 
   /* 금융기관 의뢰번호 조회 api 호출 */
@@ -96,7 +96,7 @@ export default function HeaderRightArea() {
 
   const handleSearchFail = () => {
     openToast({
-      message: "검색결과가 없습니다. 의뢰번호를 다시 확인해 주세요.",
+      message: "검색 결과가 없습니다. 의뢰번호를 다시 확인해 주세요.",
       position: "top",
     });
   };
@@ -125,11 +125,11 @@ export default function HeaderRightArea() {
   const handleSearch = () => {
     if (!searchRqstNo) return;
 
-    // 접속한 멤버가 금융기관일때 의뢰번호 조회 api 호출
+    // 접속한 멤버가 금융기관일 때 의뢰번호 조회 api 호출
     if (authInfo.membGbCd === MEMB_GB_CD.FINANCIAL) {
       getSearchBnkRqstNo();
     }
-    // 접속한 멤버가 관리자일때 의뢰번호 조회 api 호출
+    // 접속한 멤버가 관리자일 때 의뢰번호 조회 api 호출
     else if (authInfo.membGbCd === MEMB_GB_CD.ADMIN) {
       getSearchAdmRqstNo();
     }

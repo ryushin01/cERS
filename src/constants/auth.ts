@@ -24,7 +24,7 @@ export const AUTH_LIST = [
 
 export const MEMB_GB_CD = {
   FINANCIAL: "00", // 금융기관
-  LAWYER: "10", // 법무 대리인
+  LAWYER: "10", // 법무대리인
   ADMIN: "20", // 관리자
 } as const;
 

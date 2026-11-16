@@ -5,7 +5,7 @@ export const SUPPLEMENT_REQUEST_INFORMATION_LIST = [
   },
   {
     id: "supplement-request-information-2",
-    content: "보완요청 사유는 금융기관 담당자에게 보여집니다.",
+    content: "보완요청 사유는 금융기관 담당자에게 보입니다.",
   },
 ];
 
@@ -24,6 +24,6 @@ export const REJECTION_INFORMATION_LIST = [
   },
   {
     id: "rejection-information-2",
-    content: "반려 사유는 금융기관 담당자에게 보여집니다.",
+    content: "반려 사유는 금융기관 담당자에게 보입니다.",
   },
 ];

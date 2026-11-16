@@ -418,6 +418,12 @@
 
     ._file-uploader {
         @apply _flex-center px-4 py-2 rounded-md bg-ers-main-60 text-ers-grayscale-0 text-sm whitespace-nowrap hover:bg-ers-main-90 focus:bg-ers-main-70 active:bg-ers-main-70 cursor-pointer;
+
+        /* 바로 뒤의 파일 입력은 화면에서만 숨기므로, 키보드 초점이 오면 버튼 모양의 라벨에 표시합니다. */
+        &:has(+ input:focus-visible) {
+            outline: 2px solid #0b56a7;
+            outline-offset: 2px;
+        }
     }
 }
 

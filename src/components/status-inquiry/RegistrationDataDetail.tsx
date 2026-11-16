@@ -61,7 +61,7 @@ export default function RegistrationDataDetail({
   useAdjustState([data], () => {
     /*
     진행보류 버튼 비활성화 조건 
-    1. 대출실행일 기준 D-day 부터 비활성화 
+    1. 대출실행일 기준 D-day부터 비활성화 
     2. 진행상태가 '진행보류' 또는 '진행취소'인 경우 비활성화
     */
     const compareWithToday = getCompareWithToday(data?.execDt);

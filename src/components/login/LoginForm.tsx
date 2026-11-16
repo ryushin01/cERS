@@ -45,7 +45,7 @@ export default function LoginForm({ isDesktop }: ResponsiveType) {
     membGbCd: "00",
   });
 
-  /* 페이지 렌더링시점에 로컬스토리지에 저장된 userId가 있으면 id에 form 재세팅 및 체크박스 활성화 */
+  /* 페이지 렌더링 시점에 로컬스토리지에 저장된 userId가 있으면 id에 form 재세팅 및 체크박스 활성화 */
   useEffect(() => {
     const getUserId = localStorage.getItem(SAVED_USER_ID_KEY);
     if (getUserId) {
@@ -107,7 +107,7 @@ export default function LoginForm({ isDesktop }: ResponsiveType) {
           });
           return;
         }
-        // 5. id 또는 password 불일치시 토스트팝업 (모바일은 하단에 pc는 상단에 토스트팝업 노출)
+        // 5. id 또는 password 불일치 시 토스트팝업 (모바일은 하단에 pc는 상단에 토스트팝업 노출)
         openToast({
           message: "아이디 또는 비밀번호가 일치하지 않습니다.\n다시 확인해 주세요.",
           position: isDesktop ? "top" : "bottom",
@@ -168,7 +168,7 @@ export default function LoginForm({ isDesktop }: ResponsiveType) {
     }
 
     if (!checkValidation()) {
-      return; // checkValidation 통과 안되면 return
+      return; // checkValidation 통과 안 되면 return
     }
 
     loginDataSend(form);

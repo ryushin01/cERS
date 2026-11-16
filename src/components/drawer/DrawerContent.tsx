@@ -109,12 +109,12 @@ export default function DrawerContent({
           },
         });
       } else {
-        // 3.실패시 토스트팝업 (비밀번호변경응답 코드별 메세지 다름)
+        // 3. 실패 시 토스트팝업 (비밀번호 변경 응답 코드별 메시지 다름)
         openToast({
           message: `${res.data.msg}`,
           position: toastPosition,
         });
-        // 3.실패시 input별로 에러표시
+        // 3. 실패 시 input별로 에러 표시
         switch (res.data.data) {
           case "01":
           case "04":

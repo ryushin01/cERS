@@ -29,7 +29,7 @@ type RadioProps = {
  * @property {boolean} checked          - 선택값
  * @property {boolean} disabled         - 비활성화 여부
  * @property {function} onChange        - 선택 시 호출 함수
- * @property {boolean} isDesktop        - 데스크탑 해상도 진입 여부
+ * @property {boolean} isDesktop        - 데스크톱 해상도 진입 여부
  */
 export default function Radio({
   name,

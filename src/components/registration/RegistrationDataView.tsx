@@ -10,7 +10,7 @@ type RegistrationDataViewProps = {
   data?: RegistrationDetailData;
   variant: DetailVariant;
   isDesktop?: boolean;
-  /* 하단 버튼 영역 등 추가 컨텐츠 */
+  /* 하단 버튼 영역 등 추가 콘텐츠 */
   children?: ReactNode;
 };
 

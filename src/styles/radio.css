@@ -1,12 +1,20 @@
 ._radio {
-    @apply flex items-center gap-2;
+    @apply relative flex items-center gap-2;
 
+    /* 실제 입력은 화면에서만 숨깁니다. (display: none이면 키보드로 고를 수 없고 스크린 리더도 읽지 못함) */
     input {
-        @apply hidden;
+        @apply sr-only;
 
         &:disabled + img {
             @apply opacity-30 cursor-not-allowed;
         }
+    }
+
+    /* 숨긴 입력에 키보드 초점이 오면 라벨 전체에 초점을 표시합니다. (전역 초점 표시와 같은 색) */
+    &:has(input:focus-visible) {
+        outline: 2px solid #0b56a7;
+        outline-offset: 2px;
+        border-radius: 4px;
     }
 
     &:has(input:disabled) {

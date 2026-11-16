@@ -11,8 +11,8 @@ type FileIndicatorProps = {
  * @name FileIndicator
  * @version 1.0.0
  * @author 류창선 <ryushin0167@gmail.com>
- * @property {number} total     - 최대 파일 업로드 갯수
- * @property {number} count     - 현재까지 업로드 된 파일 갯수
+ * @property {number} total     - 최대 파일 업로드 개수
+ * @property {number} count     - 현재까지 업로드된 파일 개수
  */
 
 export default function FileIndicator({ total, count }: FileIndicatorProps) {

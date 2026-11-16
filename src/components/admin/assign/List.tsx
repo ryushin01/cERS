@@ -60,7 +60,7 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
     enabled: true,
   });
 
-  /* 4. api 조회 완료시 데이터 셋 */
+  /* 4. api 조회 완료 시 데이터 세팅 */
   // 새 페이지를 불러오는 동안에도 앞의 결과를 보여 주도록 상태로 둡니다.
   useAdjustState([spplListData], () => {
     if (!spplListData) return;
@@ -72,7 +72,7 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
   useEffect(() => {
     if (spplListData && !!searchRqstNo && spplListData.totalElements === 0) {
       openToast({
-        message: "일치하는 검색결과가 없습니다",
+        message: "일치하는 검색 결과가 없습니다.",
         position: isDesktop ? "top" : "bottom",
       });
     }

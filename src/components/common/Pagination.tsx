@@ -34,7 +34,7 @@ export default function Pagination({
   const [blockNum, setBlockNum] = useState(0);
   const pageLimit = pageCount;
   const blockArea = blockNum * pageLimit; // 각 페이지에서 첫 페이지네이션의 위치 계산
-  const allPageNum = Math.ceil(total / limit); // 총 페이지네이션 갯수
+  const allPageNum = Math.ceil(total / limit); // 총 페이지네이션 개수
 
   // 새로운 배열 생성 함수
   const createArray = (n: number) => {
@@ -88,7 +88,7 @@ export default function Pagination({
 
   const isOverZeroPage = allPageNum > 0;
 
-  /* 총 페이지네이션 갯수가 0 보다 크면 노출 아니면 미노출 */
+  /* 총 페이지네이션 개수가 0보다 크면 노출, 아니면 미노출 */
   return (
     <>
       {isOverZeroPage ? (

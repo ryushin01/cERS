@@ -76,7 +76,7 @@ export default function List({
         response?.data?.data?.totalElements === 0
       ) {
         openToast({
-          message: "일치하는 검색결과가 없습니다",
+          message: "일치하는 검색 결과가 없습니다.",
           position: isDesktop ? "top" : "bottom",
         });
       }
