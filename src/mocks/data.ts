@@ -146,6 +146,14 @@ export type MockStatusHistory = {
   procRsnCnts: string;
   crtMembNm: string;
   crtDtm: string;
+  /* 데모 중에 남긴 이력의 시각 (HH:mm:ss). 처음 만든 이력은 날짜만 있음 */
+  crtTm?: string;
+};
+
+/* 지금 시각 (HH:mm:ss) */
+const timeNow = () => {
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 };
 
 const HAS_LAWYER = (statCd: string) =>
@@ -229,6 +237,7 @@ export const changeStatus = (
     procRsnCnts,
     crtMembNm,
     crtDtm: dateFromToday(0),
+    crtTm: timeNow(),
   });
 };
 

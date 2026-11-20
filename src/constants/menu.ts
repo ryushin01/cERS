@@ -38,6 +38,13 @@ export const AD_MENU_LIST = [
     selectedIcon: "",
   },
   {
+    id: "ad-5",
+    name: "감사기록",
+    path: "/admin/audit",
+    defaultIcon: "",
+    selectedIcon: "",
+  },
+  {
     id: "ad-3",
     name: "회원관리",
     path: "/admin/member",

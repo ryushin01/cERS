@@ -62,4 +62,16 @@ describe("Pagination", () => {
     expect(screen.getByTestId("page")).toHaveTextContent("1");
     expect(screen.getByRole("button", { name: "1" })).toBeInTheDocument();
   });
+  it("밖에서 페이지를 1로 되돌리면 번호 묶음도 첫 묶음으로 돌아온다", async () => {
+    const setPage = () => {};
+    const { rerender } = render(
+      <Pagination total={240} page={11} limit={10} pageCount={10} setPage={setPage} />,
+    );
+    expect(screen.getByRole("button", { name: "11" })).toHaveAttribute("aria-current", "page");
+
+    // 검색 조건이 바뀌어 결과가 20건(2쪽)이 되고 페이지가 1로 돌아감
+    rerender(<Pagination total={20} page={1} limit={10} pageCount={10} setPage={setPage} />);
+    expect(screen.getByRole("button", { name: "1" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "2" })).toBeInTheDocument();
+  });
 });

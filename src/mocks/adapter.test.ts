@@ -154,6 +154,14 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
       execDt: "2099-12-31",
       procRsnCnts: "",
     });
+    // 감사기록의 처리자는 다시 제출한 금융기관
+    const { data: audit } = await request(
+      "get",
+      "/api/admin/audit/list?searchRqstNo=DEMO-002399&pageNum=1&pageSize=1",
+    );
+    expect(audit.auditList[0]).toMatchObject({ aftStatNm: "등기의뢰", crtMembNm: data.clientNm });
+    expect(data.clientNm).toBeTruthy();
+    expect(data.clientNm).not.toBe("관리자");
   });
 
   it("변경 내용은 sessionStorage에 저장되어 새로고침(모듈 재로딩) 후에도 유지된다", async () => {
@@ -225,6 +233,74 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
 
     const { data } = await request("get", "/api/admin/match/DEMO-002400");
     expect(data.statCd).toBe(PROC_STAT_CD.REQUEST);
+  });
+
+  it("감사 기록: 진행 이력을 누가·언제·무엇을 한 줄씩 최근 순으로, 조건으로 좁혀 돌려준다", async () => {
+    const request = await loadAdapter();
+    await request(
+      "patch",
+      "/api/admin/match/bulk",
+      JSON.stringify({ rqstNoList: ["DEMO-002400"], lgagMembNo: "LAW1" }),
+    );
+
+    const { data } = await request("get", "/api/admin/audit/list?pageNum=1&pageSize=5");
+    expect(data.auditList).toHaveLength(5);
+    expect(data.totalPages).toBe(Math.ceil(data.totalElements / 5));
+    // 방금 바꾼 기록이 맨 위, 시각까지 남음
+    expect(data.auditList[0]).toMatchObject({
+      rqstNo: "DEMO-002400",
+      crtMembNm: "관리자",
+      actnNm: "상태 변경",
+      bfrStatNm: "등기의뢰",
+      aftStatNm: "배정완료",
+      rsnCnts: "일괄 배정",
+    });
+    expect(data.auditList[0].crtDtm).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+
+    const { data: byRequest } = await request(
+      "get",
+      "/api/admin/audit/list?searchRqstNo=DEMO-002400&pageNum=1&pageSize=50",
+    );
+    expect(byRequest.auditList.map((item: { aftStatNm: string }) => item.aftStatNm)).toEqual([
+      "배정완료",
+      "등기의뢰",
+    ]);
+    expect(byRequest.auditList.at(-1)).toMatchObject({ actnNm: "의뢰 등록", bfrStatNm: "" });
+
+    const { data: byMember } = await request(
+      "get",
+      "/api/admin/audit/list?searchMembNm=데모 법무법인&pageNum=1&pageSize=100",
+    );
+    expect(byMember.totalElements).toBeGreaterThan(0);
+    expect(
+      byMember.auditList.every((item: { crtMembNm: string }) => item.crtMembNm === "데모 법무법인"),
+    ).toBe(true);
+
+    // 미래 기간에는 기록 없음
+    const { data: future } = await request(
+      "get",
+      "/api/admin/audit/list?fromDate=20990101&toDate=20991231&pageNum=1&pageSize=10",
+    );
+    expect(future.totalElements).toBe(0);
+  });
+
+  it("감사 기록: 같은 시각에 여러 번 바뀌어도 한 의뢰의 기록은 최근이 앞이다(10번째 이후 포함)", async () => {
+    const request = await loadAdapter();
+    const { REGISTRATIONS, changeStatus } = await import("./data");
+    const target = REGISTRATIONS.find((item) => item.rqstNo === "DEMO-002400")!;
+    for (let order = 1; order <= 10; order += 1) {
+      changeStatus(target, order % 2 ? PROC_STAT_CD.HOLD : PROC_STAT_CD.REQUEST, {
+        procRsnCnts: `순서 ${order}`,
+      });
+    }
+
+    const { data } = await request(
+      "get",
+      "/api/admin/audit/list?searchRqstNo=DEMO-002400&pageNum=1&pageSize=50",
+    );
+    expect(data.auditList.slice(0, 10).map((item: { rsnCnts: string }) => item.rsnCnts)).toEqual(
+      Array.from({ length: 10 }, (_, index) => `순서 ${10 - index}`),
+    );
   });
 
   it("등록되지 않은 API는 404로 거절한다", async () => {

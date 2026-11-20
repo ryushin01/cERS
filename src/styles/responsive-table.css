@@ -725,3 +725,49 @@
         @apply inline-flex items-center min-h-6 text-sm text-ers-main-100 underline underline-offset-2;
     }
 }
+
+/* 감사기록 표: 좁은 화면에서는 가로로 스크롤, 변경 내용·사유는 줄바꿈 */
+._responsive-table-inner-wrapper._audit-table-wrapper {
+    @apply overflow-x-auto;
+}
+
+._responsive-table-inner-wrapper._has-thead ._responsive-table._audit-table {
+    @apply min-w-[880px];
+
+    tr {
+        th:nth-child(1),
+        td:nth-child(1) {
+            @apply w-[190px];
+        }
+
+        th:nth-child(2),
+        td:nth-child(2),
+        th:nth-child(3),
+        td:nth-child(3) {
+            @apply w-[150px];
+        }
+
+        th:nth-child(4),
+        td:nth-child(4) {
+            @apply w-[110px];
+        }
+
+        td:nth-child(5),
+        td:nth-child(6) {
+            @apply whitespace-normal;
+        }
+
+        td:nth-child(6) {
+            @apply text-left;
+        }
+
+        td[colspan] {
+            @apply text-center;
+        }
+    }
+}
+
+/* 표 안 링크: 누를 수 있는 높이 24px 이상 (KWCAG 6.1.3) */
+._responsive-table ._table-link {
+    @apply inline-flex items-center min-h-6 text-sm text-ers-main-100 underline underline-offset-2;
+}
