@@ -45,6 +45,16 @@
                         span {
                             @apply text-sm text-ers-grayscale-90;
                         }
+
+                        /* 연락처 링크: 보이는 크기는 두고 위아래 3px씩 누르는 영역만 넓힘 (KWCAG 6.1.3, 24px) */
+                        a {
+                            @apply relative;
+
+                            &::after {
+                                content: "";
+                                @apply absolute inset-x-0 -inset-y-[3px];
+                            }
+                        }
                     }
                 }
             }
