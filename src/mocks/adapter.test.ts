@@ -303,6 +303,96 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
     );
   });
 
+  it("통계: 기간 안의 의뢰·접수완료·반려·취소 건수와 반려율·평균 처리 일수를 단위별로 돌려준다", async () => {
+    const { REGISTRATIONS, dateFromToday } = await import("./data");
+    const request = await loadAdapter();
+    const from = dateFromToday(-29);
+    const to = dateFromToday(0);
+    const compact = (date: string) => date.replaceAll("-", "");
+
+    const { data } = await request(
+      "get",
+      `/api/admin/statistics?fromDate=${compact(from)}&toDate=${compact(to)}&unit=DAY`,
+    );
+    expect(data).toMatchObject({ fromDate: from, toDate: to, unit: "DAY" });
+    expect(data.periodList).toHaveLength(30);
+    expect(data.periodList[0].fromDate).toBe(from);
+
+    // 목업 데이터에서 직접 센 값과 같음
+    const inRange = (date: string) => date >= from && date <= to;
+    const histories = (statNm: string) =>
+      REGISTRATIONS.flatMap((item) =>
+        item.statHistList
+          .filter((history) => history.statNm === statNm && inRange(history.crtDtm))
+          .map((history) => ({ item, history })),
+      );
+    const cmpt = histories("접수완료");
+    const rtun = histories("접수반려");
+    expect(data.summary).toMatchObject({
+      rqstCnt: REGISTRATIONS.filter((item) => inRange(item.crtDtm)).length,
+      cmptCnt: cmpt.length,
+      rtunCnt: rtun.length,
+      cnclCnt: histories("진행취소").length,
+      rtunRate: Math.round((rtun.length / (cmpt.length + rtun.length)) * 1000) / 10,
+    });
+    const days = cmpt.map(
+      ({ item, history }) =>
+        (new Date(history.crtDtm).getTime() - new Date(item.crtDtm).getTime()) / 86_400_000,
+    );
+    expect(data.summary.avgProcDays).toBe(
+      Math.round((days.reduce((a, b) => a + b, 0) / days.length) * 10) / 10,
+    );
+    // 행의 합은 요약과 같음
+    const sum = (key: string) =>
+      data.periodList.reduce((total: number, row: Record<string, number>) => total + row[key], 0);
+    expect(sum("rqstCnt")).toBe(data.summary.rqstCnt);
+    expect(sum("cmptCnt")).toBe(data.summary.cmptCnt);
+
+    // 주별은 월요일 시작, 월별은 1일 시작 (첫 행은 조회 시작일로 잘림)
+    const { data: weekly } = await request(
+      "get",
+      `/api/admin/statistics?fromDate=${compact(from)}&toDate=${compact(to)}&unit=WEEK`,
+    );
+    weekly.periodList
+      .slice(1)
+      .forEach((row: { fromDate: string }) => expect(new Date(row.fromDate).getDay()).toBe(1));
+    expect(sum("rqstCnt")).toBe(
+      weekly.periodList.reduce((t: number, row: { rqstCnt: number }) => t + row.rqstCnt, 0),
+    );
+    const { data: monthly } = await request(
+      "get",
+      `/api/admin/statistics?fromDate=${compact(from)}&toDate=${compact(to)}&unit=MONTH`,
+    );
+    monthly.periodList
+      .slice(1)
+      .forEach((row: { fromDate: string }) => expect(row.fromDate.endsWith("-01")).toBe(true));
+  });
+
+  it("통계: 기간이 거꾸로이거나 1년을 넘으면 처리하지 않고, 처리한 건이 없으면 비율은 null", async () => {
+    const request = await loadAdapter();
+    expect(
+      (await request("get", "/api/admin/statistics?fromDate=20261120&toDate=20261101&unit=DAY"))
+        .code,
+    ).toBe("99");
+    expect(
+      (await request("get", "/api/admin/statistics?fromDate=20240101&toDate=20261120&unit=DAY"))
+        .code,
+    ).toBe("99");
+
+    const { data } = await request(
+      "get",
+      "/api/admin/statistics?fromDate=20990101&toDate=20990107&unit=DAY",
+    );
+    expect(data.summary).toEqual({
+      rqstCnt: 0,
+      cmptCnt: 0,
+      rtunCnt: 0,
+      cnclCnt: 0,
+      rtunRate: null,
+      avgProcDays: null,
+    });
+  });
+
   it("등록되지 않은 API는 404로 거절한다", async () => {
     const request = await loadAdapter();
     await expect(request("get", "/api/unknown")).rejects.toMatchObject({

@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
 
 import { Loading, PageIndicator, Pagination } from "@components/common";
+import CsvExportButton from "@components/common/CsvExportButton";
 import {
   PAGE_COUNT_MOBILE,
   PAGE_COUNT_PC,
@@ -16,9 +17,20 @@ import { useAdjustState } from "@hooks";
 import { getStasusListData } from "@services/statusInquiry";
 import { toastState } from "@stores";
 import { ResponsiveType } from "@types";
+import { CsvColumn } from "@utils/csvUtil";
 
 import FilterTable from "./FilterTable";
-import Table from "./Table";
+import Table, { rgstrList } from "./Table";
+
+/* 내보내기 열 (화면 표와 같은 순서, 접수번호는 따로) */
+const EXPORT_COLUMNS: CsvColumn<rgstrList>[] = [
+  { header: "의뢰번호", value: (row) => row.rqstNo },
+  { header: "의뢰일", value: (row) => row.crtDtm },
+  { header: "대출실행일", value: (row) => row.execDt },
+  { header: "진행상태", value: (row) => row.statNm },
+  { header: "접수번호", value: (row) => row.acptNo },
+  { header: "채무자", value: (row) => row.dbtrNm },
+];
 
 export type filters = {
   rqstNo: string;
@@ -124,11 +136,37 @@ export default function List({ isDesktop }: ResponsiveType) {
     <>
       <FilterTable isDesktop={isDesktop} setFilters={setFilters} rqstNo={rqstNo} />
       <div className="_responsive-table-outer-wrapper">
-        <PageIndicator
-          total={total}
-          page={page}
-          limit={isDesktop ? PAGE_LIMIT_ADMIN : PAGE_LIMIT_MOBILE}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-x-4">
+          <PageIndicator
+            total={total}
+            page={page}
+            limit={isDesktop ? PAGE_LIMIT_ADMIN : PAGE_LIMIT_MOBILE}
+          />
+          <div className="w-[136px] mb-4">
+            {/* 지금 검색 조건 그대로 전체 목록을 내보냄 */}
+            <CsvExportButton
+              fileTitle="전자등기_현황조회"
+              columns={EXPORT_COLUMNS}
+              fetchPage={async (pageNum, pageSize) => {
+                const response = await getStasusListData({
+                  page: pageNum,
+                  size: pageSize,
+                  rqstNo: filters.rqstNo!,
+                  statCd: filters.statCd,
+                  acptNo: filters.acptNo,
+                  searchType: filters.searchType || "EXEC",
+                  fromDate: filters.fromDate,
+                  toDate: filters.toDate,
+                  dbtrNm: filters.dbtrNm,
+                });
+                return {
+                  items: response.data?.rgstrList ?? [],
+                  totalPages: response.data?.totalPages ?? 1,
+                };
+              }}
+            />
+          </div>
+        </div>
         {statusListDataLoading && <Loading />}
         <Table isDesktop={isDesktop} data={data} setQueryTime={setQueryTime} />
         <Pagination

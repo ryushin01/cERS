@@ -30,6 +30,9 @@ const ACCEPTANCE = "acceptance";
 // 감사 기록
 const AUDIT = "audit";
 
+// 통계
+const STATISTICS = "statistics";
+
 // 로그인
 export const LOGIN_PATH = "/";
 
@@ -65,6 +68,9 @@ export const AD_ASSIGN_DETAIL = `/${AD}/${ASSIGN}/${ASSIGN}-${DETAIL}`;
 
 // 관리자 > 등기관리
 export const AD_REGISTRATION = `/${AD}/${REGISTRATION}`;
+
+// 관리자 통계
+export const AD_STATISTICS = `/${AD}/${STATISTICS}`;
 
 // 관리자 감사기록
 export const AD_AUDIT = `/${AD}/${AUDIT}`;

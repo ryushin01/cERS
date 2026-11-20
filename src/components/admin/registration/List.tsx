@@ -6,6 +6,7 @@ import { useSetAtom } from "jotai";
 
 import { TabCountData } from "@components/admin/registration/Main";
 import { Loading, Pagination } from "@components/common";
+import CsvExportButton from "@components/common/CsvExportButton";
 import { Select } from "@components/form";
 import { Grid, GridItem } from "@components/layout";
 import { NUMERIC_SORT_OPTION, PERIOD_SORT_OPTION } from "@constants/option";
@@ -15,9 +16,21 @@ import { useAdjustState } from "@hooks";
 import { getRegistrationListData } from "@services/registrationManagement";
 import { toastState } from "@stores";
 import { ResponsiveType } from "@types";
+import { CsvColumn } from "@utils/csvUtil";
 
 import FilterTable from "./FilterTable";
-import Table from "./Table";
+import Table, { RegistrationItemData } from "./Table";
+
+/* 내보내기 열 (화면 표와 같은 순서) */
+const REGISTRATION_EXPORT_COLUMNS: CsvColumn<RegistrationItemData>[] = [
+  { header: "진행상태", value: (row) => row.statNm },
+  { header: "대출실행일", value: (row) => row.execDt },
+  { header: "접수보고일시", value: (row) => row.acptRptDtm },
+  { header: "의뢰번호", value: (row) => row.rqstNo },
+  { header: "채권자", value: (row) => row.bndMembNm },
+  { header: "채무자", value: (row) => row.dbtrNm },
+  { header: "법무대리인", value: (row) => row.lgagMembNm },
+];
 
 type listDataProps = {
   tabSelection: string;
@@ -125,7 +138,32 @@ export default function List({
     <>
       {registrationListLoading && <Loading />}
       <FilterTable isDesktop={isDesktop} filters={filters} setFilters={setFilters} />
-      <Grid className="_without-padding mt-6 mb-4 justify-end">
+      <Grid className="_without-padding mt-6 mb-4 gap-y-3 justify-between">
+        <GridItem mobile={12} tablet={12} desktop={3}>
+          <div className="w-[136px]">
+            {/* 지금 탭·검색 조건·정렬 그대로 전체 목록을 내보냄 */}
+            <CsvExportButton
+              fileTitle="등기관리_목록"
+              columns={REGISTRATION_EXPORT_COLUMNS}
+              fetchPage={async (pageNum, pageSize) => {
+                const response = await getRegistrationListData({
+                  tabSelection,
+                  rqstNo: filters.rqstNo,
+                  searchType: filters.searchType,
+                  fromDate: filters.fromDate,
+                  toDate: filters.toDate,
+                  sortOrder: selectedPeriod,
+                  page: pageNum,
+                  size: pageSize,
+                });
+                return {
+                  items: response?.data?.data?.rgstrMngrList ?? [],
+                  totalPages: response?.data?.data?.totalPages ?? 1,
+                };
+              }}
+            />
+          </div>
+        </GridItem>
         <GridItem mobile={12} tablet={12} desktop={3}>
           <div className="flex gap-x-4">
             <Select

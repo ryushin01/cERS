@@ -33,7 +33,7 @@ type RegistrationListData = {
   rgstrMngrList: RegistrationItemData[];
 };
 
-type RegistrationItemData = {
+export type RegistrationItemData = {
   statNm: string;
   execDt: string;
   acptRptDtm: string;
