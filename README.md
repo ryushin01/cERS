@@ -1,7 +1,7 @@
 # cERS - 전자등기 관리 시스템
 
 [![CI](https://github.com/ryushin01/cERS/actions/workflows/ci.yml/badge.svg)](https://github.com/ryushin01/cERS/actions/workflows/ci.yml)
-![version](https://img.shields.io/badge/version-2.2.5-113662)
+![version](https://img.shields.io/badge/version-2.3.0-113662)
 ![Storybook](https://img.shields.io/badge/Storybook-10-FF4785?logo=storybook&logoColor=white)
 
 금융기관·관리자용 부동산 전자등기 관리 웹 애플리케이션의 프론트엔드입니다. **cERS**는 **c**ore **E**lectronic **R**egistration **S**ystem의 줄임말입니다.
@@ -44,7 +44,7 @@
 |---|---|
 | 홈 | 오늘 실행·진행중·접수완료 통계, 실시간 등기현황, 공지사항 |
 | 의뢰목록 | 미배정 / 배정완료 / 진행보류 / 진행취소 탭, 보완필요 사유 팝업, 전자등기 의뢰(파일 업로드)·수정 |
-| 현황조회 | 의뢰번호·진행상태·접수번호·채무자·기간 검색, 등기자료·등기접수증 팝업 |
+| 현황조회 | 의뢰번호·진행상태·접수번호·채무자·기간 검색, 등기자료·등기접수증 팝업(크게 보기: 확대·회전·쪽 이동) |
 | 공지사항 | 목록, 긴급 공지 표시, 첨부파일 다운로드 |
 
 **관리자**

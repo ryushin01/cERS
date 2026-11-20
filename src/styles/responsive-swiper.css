@@ -6,6 +6,15 @@
 
         .swiper-slide {
             @apply overflow-hidden rounded-xl;
+
+            /* 크게 보기 버튼 (DocumentViewer). 슬라이드가 overflow-hidden이라 초점 테두리는 안쪽에 그림 */
+            ._btn-view {
+                @apply block w-full h-full cursor-zoom-in;
+
+                &:focus-visible {
+                    outline-offset: -3px;
+                }
+            }
         }
 
         .swiper-pagination {

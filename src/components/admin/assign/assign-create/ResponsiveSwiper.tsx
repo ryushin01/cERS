@@ -20,5 +20,12 @@ export default function ResponsiveSwiper({ imageList, handleFileDelete }: ImageL
     onDelete: () => handleFileDelete(i),
   }));
 
-  return <SwiperGallery slides={slides} className="_admin" paginationType="fraction" />;
+  return (
+    <SwiperGallery
+      slides={slides}
+      className="_admin"
+      paginationType="fraction"
+      documentName="등기자료"
+    />
+  );
 }
