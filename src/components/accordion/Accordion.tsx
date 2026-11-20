@@ -155,6 +155,7 @@ export default function Accordion({
           >
             {fileInfoList.map((fileitem) => (
               <button
+                type="button"
                 onClick={() =>
                   getBoardListData({
                     seq: fileitem.seq,
@@ -164,7 +165,8 @@ export default function Accordion({
                 }
                 key={`${fileitem.seq}-${fileitem.filIdx}`}
                 disabled={boardListDataLoading} // 로딩 중일 경우 버튼 비활성화
-                className="transition duration-300 ease-in-out transform hover:scale-105"
+                // 누르는 영역 높이 24px 이상 (KWCAG 6.1.3)
+                className="inline-flex items-center min-h-6 transition duration-300 ease-in-out transform hover:scale-105"
               >
                 {fileitem.attcFilNm}
               </button>
