@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PROC_STAT_CD } from "@constants/code";
+import { getRegistrationListData } from "@services/registrationManagement";
 import { mockDesktopMatchMedia, renderWithProviders } from "@/test/renderWithProviders";
 
 import Main from "./Main";
@@ -11,6 +12,12 @@ import Main from "./Main";
  * 통합 테스트: 관리자 등기관리 화면을 데모 목업 데이터로 렌더링해,
  * API 응답(탭 건수·목록)이 화면에 그대로 표시되는지 확인합니다.
  */
+
+/* 기본은 실제 요청(목업 API), 실패 응답이 필요한 테스트에서만 한 번 바꿈 */
+vi.mock("@services/registrationManagement", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@services/registrationManagement")>();
+  return { ...actual, getRegistrationListData: vi.fn(actual.getRegistrationListData) };
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -70,5 +77,33 @@ describe("관리자 등기관리 화면 (데모 데이터 통합)", () => {
     bodyRows().forEach((row) =>
       expect(within(row).getAllByRole("cell")[0]).toHaveTextContent("접수완료"),
     );
+  });
+
+  it("엑셀 내보내기: 중간 쪽이 업무 실패면 앞 쪽만 담긴 파일을 내려받지 않고 실패로 끝낸다", async () => {
+    const counts = await expectedCounts();
+    renderWithProviders(<Main />);
+    await screen.findByRole("tab", { name: new RegExp(`전체\\s*${counts.total}`) });
+
+    const download = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const logError = vi.spyOn(console, "error").mockImplementation(() => {});
+    // 이 API는 axios 응답을 그대로 돌려주므로 봉투(code·msg·data)는 data 안에 있음
+    vi.mocked(getRegistrationListData)
+      .mockResolvedValueOnce({
+        data: {
+          code: "00",
+          msg: "",
+          data: { rgstrMngrList: [{ rqstNo: "DEMO-000001" }], totalPages: 2 },
+        },
+      } as never)
+      .mockResolvedValueOnce({ data: { code: "99", msg: "2쪽 조회 실패", data: null } } as never);
+    await userEvent.click(screen.getByRole("button", { name: "엑셀 내보내기" }));
+
+    await vi.waitFor(() =>
+      expect(logError).toHaveBeenCalledWith(expect.objectContaining({ message: "2쪽 조회 실패" })),
+    );
+    expect(getRegistrationListData).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 2, size: 100 }),
+    );
+    expect(download).not.toHaveBeenCalled();
   });
 });

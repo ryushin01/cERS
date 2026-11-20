@@ -13,7 +13,7 @@ import { NUMERIC_SORT_OPTION, PERIOD_SORT_OPTION } from "@constants/option";
 import { useAdjustState, useResponsive } from "@hooks";
 import { getSupplimentListData } from "@services/adminAssign";
 import { toastState } from "@stores";
-import { CsvColumn } from "@utils/csvUtil";
+import { CsvColumn, okListResponse } from "@utils/csvUtil";
 
 import BulkAssignModal from "./BulkAssignModal";
 import NotAllottedTable from "./NotAllottedTable";
@@ -163,17 +163,17 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
                 fileTitle={`배정관리_${TAB_NAMES[tabIndex] ?? "목록"}`}
                 columns={EXPORT_COLUMNS}
                 fetchPage={async (pageNum, pageSize) => {
-                  const response = await getSupplimentListData({
-                    pageNum,
-                    pageSize,
-                    searchRqstNo,
-                    tabSelection: tabIndex,
-                    sortOrder: selectedPeriod,
-                  });
-                  return {
-                    items: response.data?.mtchList ?? [],
-                    totalPages: response.data?.totalPages ?? 1,
-                  };
+                  // 업무 실패한 쪽이 있으면 일부만 담긴 파일 대신 내보내기 전체를 실패로
+                  const { data } = okListResponse(
+                    await getSupplimentListData({
+                      pageNum,
+                      pageSize,
+                      searchRqstNo,
+                      tabSelection: tabIndex,
+                      sortOrder: selectedPeriod,
+                    }),
+                  );
+                  return { items: data?.mtchList ?? [], totalPages: data?.totalPages ?? 1 };
                 }}
               />
             </div>

@@ -353,9 +353,10 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
       "get",
       `/api/admin/statistics?fromDate=${compact(from)}&toDate=${compact(to)}&unit=WEEK`,
     );
+    // "YYYY-MM-DD"는 UTC 자정으로 읽히므로 요일도 UTC로 (어느 시간대에서 돌려도 같게)
     weekly.periodList
       .slice(1)
-      .forEach((row: { fromDate: string }) => expect(new Date(row.fromDate).getDay()).toBe(1));
+      .forEach((row: { fromDate: string }) => expect(new Date(row.fromDate).getUTCDay()).toBe(1));
     expect(sum("rqstCnt")).toBe(
       weekly.periodList.reduce((t: number, row: { rqstCnt: number }) => t + row.rqstCnt, 0),
     );
@@ -370,6 +371,21 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
 
   it("통계: 기간이 거꾸로이거나 1년을 넘으면 처리하지 않고, 처리한 건이 없으면 비율은 null", async () => {
     const request = await loadAdapter();
+    // 날짜 형식이 아니거나 없는 날짜면 기간을 돌기 전에 거절 (끝없이 돌지 않게)
+    for (const query of [
+      "fromDate=20261101&toDate=not-a-date",
+      "fromDate=abc&toDate=20261120",
+      "fromDate=20260230&toDate=20260310",
+    ]) {
+      expect((await request("get", `/api/admin/statistics?${query}&unit=DAY`)).code).toBe("99");
+    }
+    // 하루짜리 기간은 그대로 처리
+    const { code, data: oneDay } = await request(
+      "get",
+      "/api/admin/statistics?fromDate=20261120&toDate=20261120&unit=DAY",
+    );
+    expect(code).toBe("00");
+    expect(oneDay.periodList).toHaveLength(1);
     expect(
       (await request("get", "/api/admin/statistics?fromDate=20261120&toDate=20261101&unit=DAY"))
         .code,

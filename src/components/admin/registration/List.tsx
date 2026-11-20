@@ -16,7 +16,7 @@ import { useAdjustState } from "@hooks";
 import { getRegistrationListData } from "@services/registrationManagement";
 import { toastState } from "@stores";
 import { ResponsiveType } from "@types";
-import { CsvColumn } from "@utils/csvUtil";
+import { CsvColumn, okListResponse } from "@utils/csvUtil";
 
 import FilterTable from "./FilterTable";
 import Table, { RegistrationItemData } from "./Table";
@@ -156,10 +156,9 @@ export default function List({
                   page: pageNum,
                   size: pageSize,
                 });
-                return {
-                  items: response?.data?.data?.rgstrMngrList ?? [],
-                  totalPages: response?.data?.data?.totalPages ?? 1,
-                };
+                // 업무 실패한 쪽이 있으면 일부만 담긴 파일 대신 내보내기 전체를 실패로
+                const { data } = okListResponse(response?.data);
+                return { items: data?.rgstrMngrList ?? [], totalPages: data?.totalPages ?? 1 };
               }}
             />
           </div>

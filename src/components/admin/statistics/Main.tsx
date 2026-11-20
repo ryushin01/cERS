@@ -32,6 +32,9 @@ const UNIT_OPTIONS: { label: string; value: Unit }[] = [
 
 type StatisticsQuery = { periodIndex: number; unit: Unit };
 const INITIAL_QUERY: StatisticsQuery = { periodIndex: 1, unit: "WEEK" };
+const isSameQuery = (a: StatisticsQuery, b: StatisticsQuery) =>
+  a.periodIndex === b.periodIndex && a.unit === b.unit;
+const LOAD_ERROR_MESSAGE = "통계를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
 
 const queryRange = (periodIndex: number) => ({
   fromDate: getDateString(getTodayAddDays(-(STATISTICS_PERIODS[periodIndex].days - 1))),
@@ -72,6 +75,8 @@ const TABLE_LABELS = [
  * @name Main
  * @description 관리자 통계: 기간별 처리 건수(의뢰·접수완료·접수반려·진행취소), 반려율, 평균 처리 일수
  *              - 기간·집계 단위는 조회 버튼을 눌러야 적용, 바뀐 조회 범위는 role="status"로 알림
+ *                (같은 조건으로 다시 누르면 다시 조회)
+ *              - 업무 실패 응답은 오류로 알리고 빈 화면 대신 실패 안내를 보여 줌
  *              - 숫자는 색 없이 글자로만 보여 주고(요약 칸 + 표), 표는 엑셀(CSV)로 내보낼 수 있음
  */
 export default function Main() {
@@ -79,9 +84,14 @@ export default function Main() {
   const [query, setQuery] = useState<StatisticsQuery>(INITIAL_QUERY);
   const range = queryRange(query.periodIndex);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin-statistics", query],
-    queryFn: async () => await getStatistics({ ...range, unit: query.unit }),
+    queryFn: async () => {
+      const response = await getStatistics({ ...range, unit: query.unit });
+      // 업무 실패(code "99" 등)는 빈 화면으로 보이지 않게 오류로 돌려 토스트로 알림
+      if (response.code !== "00") throw new Error(response.msg || LOAD_ERROR_MESSAGE);
+      return response;
+    },
     select: (response): StatisticsData | undefined => response.data ?? undefined,
     placeholderData: (previous) => previous,
   });
@@ -99,6 +109,11 @@ export default function Main() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // 같은 조건이면 조회 key가 같으므로 직접 다시 조회 (실패한 조회 재시도, 최신 값으로 갱신)
+    if (isSameQuery(draft, query)) {
+      void refetch();
+      return;
+    }
     setQuery(draft);
   };
 
@@ -161,7 +176,11 @@ export default function Main() {
       </Form>
 
       <p role="status" className="mb-3 text-sm text-ers-grayscale-90">
-        {data ? `${data.fromDate} ~ ${data.toDate}, ${unitName} 집계` : ""}
+        {isError && !data
+          ? "통계를 불러오지 못했습니다. 조회를 눌러 다시 시도해 주세요."
+          : data
+            ? `${data.fromDate} ~ ${data.toDate}, ${unitName} 집계`
+            : ""}
       </p>
 
       <h3 className="sr-only">기간 전체 요약</h3>
@@ -200,6 +219,13 @@ export default function Main() {
           </caption>
           <TableHead labels={TABLE_LABELS} isDesktop={true} />
           <tbody>
+            {isError && !data && (
+              <tr>
+                <td colSpan={TABLE_LABELS.length}>
+                  <Typography kind="body-medium">통계를 불러오지 못했습니다.</Typography>
+                </td>
+              </tr>
+            )}
             {(data?.periodList ?? []).map((row) => (
               <tr key={row.fromDate}>
                 <th scope="row">

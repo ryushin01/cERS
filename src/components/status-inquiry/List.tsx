@@ -17,7 +17,7 @@ import { useAdjustState } from "@hooks";
 import { getStasusListData } from "@services/statusInquiry";
 import { toastState } from "@stores";
 import { ResponsiveType } from "@types";
-import { CsvColumn } from "@utils/csvUtil";
+import { CsvColumn, okListResponse } from "@utils/csvUtil";
 
 import FilterTable from "./FilterTable";
 import Table, { rgstrList } from "./Table";
@@ -148,21 +148,21 @@ export default function List({ isDesktop }: ResponsiveType) {
               fileTitle="전자등기_현황조회"
               columns={EXPORT_COLUMNS}
               fetchPage={async (pageNum, pageSize) => {
-                const response = await getStasusListData({
-                  page: pageNum,
-                  size: pageSize,
-                  rqstNo: filters.rqstNo!,
-                  statCd: filters.statCd,
-                  acptNo: filters.acptNo,
-                  searchType: filters.searchType || "EXEC",
-                  fromDate: filters.fromDate,
-                  toDate: filters.toDate,
-                  dbtrNm: filters.dbtrNm,
-                });
-                return {
-                  items: response.data?.rgstrList ?? [],
-                  totalPages: response.data?.totalPages ?? 1,
-                };
+                // 업무 실패한 쪽이 있으면 일부만 담긴 파일 대신 내보내기 전체를 실패로
+                const { data } = okListResponse(
+                  await getStasusListData({
+                    page: pageNum,
+                    size: pageSize,
+                    rqstNo: filters.rqstNo!,
+                    statCd: filters.statCd,
+                    acptNo: filters.acptNo,
+                    searchType: filters.searchType || "EXEC",
+                    fromDate: filters.fromDate,
+                    toDate: filters.toDate,
+                    dbtrNm: filters.dbtrNm,
+                  }),
+                );
+                return { items: data?.rgstrList ?? [], totalPages: data?.totalPages ?? 1 };
               }}
             />
           </div>

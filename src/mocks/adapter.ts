@@ -129,6 +129,9 @@ const formatDay = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const daysBetween = (from: string, to: string) =>
   Math.round((parseDay(to).getTime() - parseDay(from).getTime()) / DAY_MS);
+/* YYYY-MM-DD 형식의 실제 날짜인지 (2026-02-30처럼 넘어가는 날짜도 거절) */
+const isValidDay = (date: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(date) && formatDay(parseDay(date)) === date;
 
 /* 집계 단위의 시작일: 일별은 그날, 주별은 그 주 월요일, 월별은 그 달 1일 */
 const bucketStart = (date: string, unit: string) => {
@@ -754,6 +757,10 @@ const routes: Route[] = [
       const unit = ["DAY", "WEEK", "MONTH"].includes(params.get("unit") ?? "")
         ? params.get("unit")!
         : "DAY";
+      // 날짜가 아니면 기간을 돌기 전에 거절 (형식이 틀린 날짜는 문자열 비교로 끝나지 않음)
+      if (!isValidDay(fromDate) || !isValidDay(toDate)) {
+        return { code: "99", msg: "조회 기간을 날짜로 정해 주세요.", data: null };
+      }
       if (fromDate > toDate || daysBetween(fromDate, toDate) > 366) {
         return { code: "99", msg: "조회 기간은 1년 안으로 정해 주세요.", data: null };
       }

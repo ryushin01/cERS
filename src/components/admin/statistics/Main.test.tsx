@@ -10,6 +10,12 @@ import Main, { formatCount, formatDays, formatRate, periodLabel } from "./Main";
 
 /* 통합 테스트: 관리자 통계를 데모 목업 데이터로 렌더링 */
 
+/* 기본은 실제 요청(목업 API), 실패 응답이 필요한 테스트에서만 한 번 바꿈 */
+vi.mock("@services/adminStatistics", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@services/adminStatistics")>();
+  return { ...actual, getStatistics: vi.fn(actual.getStatistics) };
+});
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   usePathname: () => "/admin/statistics",
@@ -88,5 +94,42 @@ describe("통계", () => {
       timeout: 3000,
     });
     expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(1 + 7);
+  });
+
+  it("업무 실패 응답은 빈 화면이 아니라 실패로 알리고, 같은 조건으로 조회를 누르면 다시 조회한다", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getStatistics).mockClear();
+    vi.mocked(getStatistics).mockResolvedValueOnce({
+      code: "99",
+      msg: "조회 기간은 1년 안으로 정해 주세요.",
+      data: null,
+    });
+    renderWithProviders(<Main />);
+
+    await waitFor(
+      () =>
+        expect(screen.getByRole("status")).toHaveTextContent(
+          "통계를 불러오지 못했습니다. 조회를 눌러 다시 시도해 주세요.",
+        ),
+      { timeout: 3000 },
+    );
+    expect(screen.getByText("통계를 불러오지 못했습니다.")).toBeInTheDocument();
+    expect(getStatistics).toHaveBeenCalledTimes(1);
+
+    // 조건을 바꾸지 않고 조회 → 다시 조회
+    await user.click(screen.getByRole("button", { name: "조회" }));
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/주별.* 집계$/), {
+      timeout: 3000,
+    });
+    expect(getStatistics).toHaveBeenCalledTimes(2);
+    const expected = await statisticsOf(30, "WEEK");
+    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(
+      1 + expected.periodList.length,
+    );
+
+    // 성공한 뒤에도 같은 조건으로 조회하면 새로 불러옴
+    vi.mocked(getStatistics).mockClear();
+    await user.click(screen.getByRole("button", { name: "조회" }));
+    await waitFor(() => expect(getStatistics).toHaveBeenCalledTimes(1));
   });
 });

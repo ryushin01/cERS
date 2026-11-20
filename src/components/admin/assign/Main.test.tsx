@@ -3,12 +3,19 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PROC_STAT_CD } from "@constants/code";
+import { getSupplimentListData } from "@services/adminAssign";
 import { REGISTRATIONS } from "@/mocks/data";
 import { mockDesktopMatchMedia, renderWithProviders } from "@/test/renderWithProviders";
 
 import Main from "./Main";
 
 /* 통합 테스트: 관리자 배정관리의 미배정 건수, 탭, 의뢰번호 검색 */
+
+/* 기본은 실제 요청(목업 API), 실패 응답이 필요한 테스트에서만 한 번 바꿈 */
+vi.mock("@services/adminAssign", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@services/adminAssign")>();
+  return { ...actual, getSupplimentListData: vi.fn(actual.getSupplimentListData) };
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -189,5 +196,29 @@ describe("배정관리", () => {
     expect(screen.queryByText("1건 선택됨")).not.toBeInTheDocument();
     expect(screen.getByText("배정할 의뢰를 고르면 일괄 배정할 수 있습니다.")).toBeInTheDocument();
     target.statCd = before;
+  });
+
+  it("엑셀 내보내기: 중간 쪽이 업무 실패면 앞 쪽만 담긴 파일을 내려받지 않고 실패로 끝낸다", async () => {
+    renderWithProviders(<Main />);
+    await waitFor(() => expect(shownNumbers().length).toBeGreaterThan(0), { timeout: 3000 });
+
+    const download = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const logError = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(getSupplimentListData)
+      .mockResolvedValueOnce({
+        code: "00",
+        msg: "",
+        data: { mtchList: [{ rqstNo: "DEMO-000001" }], totalPages: 2 },
+      })
+      .mockResolvedValueOnce({ code: "99", msg: "2쪽 조회 실패", data: null });
+    await userEvent.click(screen.getByRole("button", { name: "엑셀 내보내기" }));
+
+    await waitFor(() =>
+      expect(logError).toHaveBeenCalledWith(expect.objectContaining({ message: "2쪽 조회 실패" })),
+    );
+    expect(getSupplimentListData).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pageNum: 2, pageSize: 100 }),
+    );
+    expect(download).not.toHaveBeenCalled();
   });
 });

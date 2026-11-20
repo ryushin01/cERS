@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { csvFileName, escapeCsvCell, fetchAllPages, toCsv } from "./csvUtil";
+import { csvFileName, escapeCsvCell, fetchAllPages, okListResponse, toCsv } from "./csvUtil";
 
 describe("csvUtil", () => {
   it("쉼표·따옴표·줄바꿈이 든 값은 따옴표로 감싼다", () => {
@@ -17,6 +17,10 @@ describe("csvUtil", () => {
     expect(escapeCsvCell("+821000000000")).toBe("'+821000000000");
     expect(escapeCsvCell("-1")).toBe("'-1");
     expect(escapeCsvCell("@SUM(A1)")).toBe("'@SUM(A1)");
+    // 탭·CR·LF로 시작해도 수식이 될 수 있음 (줄바꿈이 있으면 따옴표로도 감쌈)
+    expect(escapeCsvCell("\t=1+1")).toBe("'\t=1+1");
+    expect(escapeCsvCell("\r=1+1")).toBe('"\'\r=1+1"');
+    expect(escapeCsvCell("\n=1+1")).toBe('"\'\n=1+1"');
     expect(escapeCsvCell(-1)).toBe("-1");
     expect(escapeCsvCell(120_000_000)).toBe("120000000");
     expect(escapeCsvCell(Number.NaN)).toBe("");
@@ -72,5 +76,24 @@ describe("csvUtil", () => {
     const empty = vi.fn(async () => ({ items: [], totalPages: 0 }));
     expect(await fetchAllPages(empty)).toEqual({ rows: [], truncated: false });
     expect(empty).toHaveBeenCalledTimes(1);
+  });
+
+  it("목록 응답이 업무 실패면 msg를 담아 던지고, 중간 쪽이 실패하면 모은 행을 돌려주지 않는다", async () => {
+    const ok = { code: "00", msg: "정상 처리되었습니다.", data: { list: [1], totalPages: 2 } };
+    expect(okListResponse(ok)).toBe(ok);
+    expect(() => okListResponse({ code: "99", msg: "조회 실패", data: null })).toThrow("조회 실패");
+    expect(() => okListResponse({ code: "99", msg: "" })).toThrow("목록을 불러오지 못했습니다.");
+    expect(() => okListResponse(undefined)).toThrow("목록을 불러오지 못했습니다.");
+
+    // 2쪽이 실패(data: null)하면 1쪽만 담긴 결과가 아니라 실패로 끝남
+    const responses = [ok, { code: "99", msg: "2쪽 조회 실패", data: null }];
+    const fetchPage = vi.fn(async (pageNum: number) => {
+      const { data } = okListResponse<{ code: string; msg: string; data: typeof ok.data | null }>(
+        responses[pageNum - 1],
+      );
+      return { items: data?.list ?? [], totalPages: data?.totalPages ?? 1 };
+    });
+    await expect(fetchAllPages(fetchPage)).rejects.toThrow("2쪽 조회 실패");
+    expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 });
