@@ -13,6 +13,12 @@ export type AssignListItem = {
   mtchDtm: string;
 };
 
+/* 관리자 배정관리 - 일괄 배정 결과 */
+export type BulkAssignResult = {
+  successList: string[];
+  failList: { rqstNo: string; reason: string }[];
+};
+
 /* 관리자 배정관리 - 전자등기 신규 등록 폼 */
 export type AssignCreateForm = {
   rqstNo: string;

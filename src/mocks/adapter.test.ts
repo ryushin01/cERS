@@ -173,6 +173,60 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
     expect(detail.statCd).toBe(PROC_STAT_CD.COMPLET);
   });
 
+  it("일괄 배정: 고른 미배정 건에 법무대리인을 지정하고, 배정할 수 없는 건은 사유와 함께 돌려준다", async () => {
+    const request = await loadAdapter();
+    // 금융기관이 막 의뢰한 건은 배정 정보(채무자 등)가 없음
+    const form = new FormData();
+    form.append("execDt", "20991231");
+    await request("post", "/api/client/request", form);
+
+    const response = await request(
+      "patch",
+      "/api/admin/match/bulk",
+      JSON.stringify({
+        // 002400: 등기의뢰, 002399: 보완필요, 002398: 이미 배정완료, 002401: 새 의뢰(정보 없음)
+        rqstNoList: ["DEMO-002400", "DEMO-002399", "DEMO-002398", "DEMO-002401", "DEMO-999999"],
+        lgagMembNo: "LAW2",
+      }),
+    );
+
+    expect(response.code).toBe("00");
+    expect(response.data.successList).toEqual(["DEMO-002400", "DEMO-002399"]);
+    expect(response.data.failList).toEqual([
+      { rqstNo: "DEMO-002398", reason: "이미 배정완료 상태입니다." },
+      {
+        rqstNo: "DEMO-002401",
+        reason:
+          "배정 정보가 없습니다(채무자, 담보목적물 주소, 채권최고액, 설정약정일, 등기고유번호). 배정 화면에서 입력해 주세요.",
+      },
+      { rqstNo: "DEMO-999999", reason: "의뢰를 찾을 수 없습니다." },
+    ]);
+
+    const { data: assigned } = await request("get", "/api/admin/match/DEMO-002400");
+    expect(assigned).toMatchObject({
+      statCd: PROC_STAT_CD.MATCH,
+      lgagMembNm: "샘플 법무사사무소",
+    });
+    // 진행 이력에 일괄 배정으로 남음 (감사 기록)
+    expect(assigned.statHistList[0]).toMatchObject({
+      statNm: "배정완료",
+      procRsnCnts: "일괄 배정",
+    });
+  });
+
+  it("일괄 배정: 법무대리인이 없으면 처리하지 않는다", async () => {
+    const request = await loadAdapter();
+    const response = await request(
+      "patch",
+      "/api/admin/match/bulk",
+      JSON.stringify({ rqstNoList: ["DEMO-002400"], lgagMembNo: "" }),
+    );
+    expect(response.code).toBe("99");
+
+    const { data } = await request("get", "/api/admin/match/DEMO-002400");
+    expect(data.statCd).toBe(PROC_STAT_CD.REQUEST);
+  });
+
   it("등록되지 않은 API는 404로 거절한다", async () => {
     const request = await loadAdapter();
     await expect(request("get", "/api/unknown")).rejects.toMatchObject({

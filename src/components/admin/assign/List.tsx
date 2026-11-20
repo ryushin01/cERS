@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
 
+import { Button } from "@components/button";
 import { Loading, Pagination } from "@components/common";
 import { Select } from "@components/form";
 import { Grid, GridItem } from "@components/layout";
@@ -12,8 +13,11 @@ import { useAdjustState, useResponsive } from "@hooks";
 import { getSupplimentListData } from "@services/adminAssign";
 import { toastState } from "@stores";
 
+import BulkAssignModal from "./BulkAssignModal";
 import NotAllottedTable from "./NotAllottedTable";
 import Table from "./Table";
+
+import type { AssignListItem } from "@types";
 
 interface ListProps {
   tabIndex: string;
@@ -29,11 +33,31 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
 
   const [unMatchCount, setUnMatchCount] = useState<number>();
   const [page, setPage] = useState<number>(1);
-  const [data, setData] = useState([]); // 테이블 데이터
+  const [data, setData] = useState<AssignListItem[]>([]); // 테이블 데이터
   const [total, setTotal] = useState<number>(0); // 전체 데이터 개수
+  /* 일괄 배정: 이 페이지에서 고른 의뢰번호 */
+  const [selected, setSelected] = useState<string[]>([]);
+  const [isBulkAssignOpen, setIsBulkAssignOpen] = useState(false);
+  const isNotAllotted = tabIndex === "00";
+
+  const handleBulkAssignOpen = () => {
+    if (selected.length === 0) {
+      openToast({
+        message: "일괄 배정할 의뢰를 먼저 골라 주세요.",
+        position: isDesktop ? "top" : "bottom",
+      });
+      return;
+    }
+    setIsBulkAssignOpen(true);
+  };
 
   /* 1. 탭인덱스가 바뀌면 페이지는 무조건 1로 세팅 */
   useAdjustState([tabIndex, searchRqstNo, selectedNumeric], () => setPage(1));
+
+  /* 고른 의뢰는 지금 보이는 페이지 안에서만 유지 (조회 조건이 바뀌면 해제) */
+  useAdjustState([page, tabIndex, searchRqstNo, selectedPeriod, selectedNumeric], () =>
+    setSelected([]),
+  );
 
   /* 2. 조회 조건(page, tabIndex, searchRqstNo, selectedPeriod, selectedNumeric)은 queryKey에 포함되어 있어 변경 시 자동으로 재조회됩니다. */
 
@@ -64,7 +88,10 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
   // 새 페이지를 불러오는 동안에도 앞의 결과를 보여 주도록 상태로 둡니다.
   useAdjustState([spplListData], () => {
     if (!spplListData) return;
-    setData(spplListData.mtchList || []); // data set
+    const rows: AssignListItem[] = spplListData.mtchList || [];
+    setData(rows); // data set
+    // 고른 의뢰는 새로 보이는 행 안에서만 유지 (불러오는 동안 앞 결과에서 고른 건·목록에서 빠진 건은 해제)
+    setSelected((current) => current.filter((rqstNo) => rows.some((row) => row.rqstNo === rqstNo)));
     setTotal(spplListData.totalElements || 0); //total set
     setUnMatchCount(spplListData.unMtchCnt || 0); //unmatch set
   });
@@ -80,9 +107,9 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spplListData]);
 
-  /* 5. 미배정건 데이터 상위 Main으로 전달 */
+  /* 5. 미배정건 데이터 상위 Main으로 전달 (일괄 배정으로 0건이 되어도 전달) */
   useEffect(() => {
-    if (unMatchCount) {
+    if (unMatchCount !== undefined) {
       unMatchData(unMatchCount);
     }
     // 상위 콜백(unMatchData)은 렌더링마다 새로 생성되므로 건수 변경 시에만 전달합니다.
@@ -92,7 +119,32 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
   return (
     <>
       {spplListDataLoading && <Loading />}
-      <Grid className="_without-padding mt-6 mb-4 justify-end">
+      <Grid
+        className={`_without-padding mt-6 mb-4 gap-y-3 ${isNotAllotted ? "justify-between" : "justify-end"}`}
+      >
+        {isNotAllotted && (
+          <GridItem mobile={12} tablet={12} desktop={4}>
+            <div className="flex items-center gap-x-4">
+              <div className="w-[136px]">
+                <Button
+                  shape="solid"
+                  size="sm"
+                  color="main100"
+                  // disabled로 두면 배정 후 모달이 닫힐 때 이 버튼으로 초점이 돌아오지 못하므로, 고른 건이 없으면 안내만 함
+                  onClick={handleBulkAssignOpen}
+                >
+                  일괄 배정
+                </Button>
+              </div>
+              {/* 고른 건수가 바뀌면 스크린 리더에 알림 */}
+              <p role="status" className="text-sm text-ers-grayscale-90">
+                {selected.length
+                  ? `${selected.length}건 선택됨`
+                  : "배정할 의뢰를 고르면 일괄 배정할 수 있습니다."}
+              </p>
+            </div>
+          </GridItem>
+        )}
         <GridItem mobile={12} tablet={12} desktop={3}>
           <div className="flex gap-x-4">
             <Select
@@ -121,10 +173,25 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
 
       {tabIndex === "00" ? (
         /* 미배정 테이블 */
-        <NotAllottedTable isDesktop={isDesktop} data={data} />
+        <NotAllottedTable
+          isDesktop={isDesktop}
+          data={data}
+          selected={selected}
+          onSelectedChange={setSelected}
+        />
       ) : (
         /* 배정완료 / 진행보류 / 진행취소 테이블 */
         <Table isDesktop={isDesktop} data={data} />
+      )}
+
+      {isBulkAssignOpen && (
+        <BulkAssignModal
+          requestNos={selected}
+          onAssigned={(assigned) =>
+            setSelected((current) => current.filter((rqstNo) => !assigned.includes(rqstNo)))
+          }
+          onClose={() => setIsBulkAssignOpen(false)}
+        />
       )}
 
       <Pagination
