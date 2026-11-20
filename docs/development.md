@@ -180,12 +180,12 @@ pnpm run dev
 | 라우팅 | `middleware.test.ts` | 사용자 유형별 접근 경로 리다이렉트, Storybook 경로 통과 |
 | API 요청 | `services/services.test.ts` | services가 만드는 요청(메서드·주소·쿼리·본문). 검색어에 `&`·`#` 같은 문자가 있어도 그대로 전달되는지 |
 | 데모 데이터 | `mocks/data.test.ts`, `mocks/adapter.test.ts` | 목업 데이터가 업무 규칙과 맞는지, 목업 API의 응답·상태 변경 |
-| 화면 통합 | `components/**/Main.test.tsx` | 화면을 실제 데이터 흐름(TanStack Query → services → 목업 API)으로 렌더링해 목록·건수가 데이터와 같은지 |
+| 화면 통합 | `components/**/Main.test.tsx` | 화면을 실제 데이터 흐름(TanStack Query → services → 목업 API)으로 렌더링해 목록·건수가 데이터와 같은지. 감사기록은 최근 기록(시각·이전 → 이후 상태)·검색 버튼을 눌러야 적용되는 조건·기간 버튼 |
 | 폼 → 요청 내용 | `CreateForm`·`DetailForm`·`DesktopFileUploader`·`MobileFileUploader`·`RegistrationInformation`·`ReasonModals`(반려·진행취소) 테스트 | 폼에 입력하고 제출했을 때 서버로 가는 요청(JSON·첨부 파일)이 입력값과 정확히 같은지, 연속 클릭에도 한 번만 전송되는지 |
 | 공통 동작 | `DocumentViewer`·`Pagination`·`TabGroup`·`LoginForm`·`HeaderRightArea`·`AccountLayer`·`DrawerContent`·`useLogout`·`useFileUpload` 테스트 | 등기자료 크게 보기(버튼·단축키로 쪽 이동·확대·회전, 끝에서 초점 유지, 닫으면 초점 복귀), 페이지 이동, 탭 키보드 조작, 로그인, 헤더 의뢰번호 검색(Enter·버튼·없는 번호), 계정 메뉴 닫기와 초점, 비밀번호 변경, 로그아웃(데모·API·실패), 파일 개수·용량 제한 |
 | 검색 조건 | `status-inquiry/List`·`admin/registration/FilterTable`·`admin/assign/Main` 테스트 | 의뢰번호·진행상태·접수번호·채무자·기간 검색과 초기화, 헤더 검색 후 재검색, 한 페이지 개수와 쪽수, 배정관리 탭, 일괄 배정(선택·법무대리인 오류 연결과 초점·배정 후 목록 반영·배정 정보가 빠진 건의 실패 결과·처리 중에 취소하고 다시 연 모달 유지·불러오는 동안 고른 앞 목록의 건 해제) |
 | 오류 화면 | `app/error.test.tsx` | 앱 전체 오류 화면의 다시 시도, 사용자 유형별 홈 이동 |
-| 스토리 | 모든 `*.stories.tsx` (`pnpm run test:storybook`) | 스토리 268개를 실제 브라우저에서 렌더링, 접근성 위반(axe) 검사 (스토리의 첫 화면 기준이라 레이아웃 잘림은 잡지 못함) |
+| 스토리 | 모든 `*.stories.tsx` (`pnpm run test:storybook`) | 스토리 270개를 실제 브라우저에서 렌더링, 접근성 위반(axe) 검사 (스토리의 첫 화면 기준이라 레이아웃 잘림은 잡지 못함) |
 | E2E | `e2e/` (`pnpm run test:e2e`) | 아래 [E2E 테스트](#e2e-테스트) 참고 |
 | 속성 기반 | `utils/amountUtil.test.ts`, `utils/dateUtil.test.ts` | [fast-check](https://fast-check.dev)로 임의 입력 수천 건을 생성해 금액·날짜 변환 규칙이 항상 지켜지는지 (예: 금액 표시 → 숫자 변환 시 원래 값, 모든 시간대에서 같은 날짜) |
 
