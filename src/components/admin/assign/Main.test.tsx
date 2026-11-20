@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -19,6 +19,12 @@ vi.mock("next/navigation", () => ({
 beforeEach(() => {
   sessionStorage.clear();
   mockDesktopMatchMedia();
+  // 일괄 배정 모달을 띄울 포털
+  if (!document.getElementById("portal")) {
+    const portal = document.createElement("div");
+    portal.id = "portal";
+    document.body.appendChild(portal);
+  }
 });
 
 const shownNumbers = () =>
@@ -62,5 +68,76 @@ describe("배정관리", () => {
       .sort();
     await waitFor(() => expect(shownNumbers()).toEqual(cancelled), { timeout: 3000 });
     expect(shownNumbers()).not.toEqual(before);
+  });
+
+  it("일괄 배정: 여러 건을 골라 법무대리인을 한 번에 지정하면 미배정 목록에서 빠진다", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Main />);
+    await screen.findAllByText(/^DEMO-\d+$/, {}, { timeout: 3000 });
+
+    const bulkButton = screen.getByRole("button", { name: "일괄 배정" });
+    expect(bulkButton).toBeDisabled();
+
+    const [first, second] = shownNumbers() as string[];
+    await user.click(screen.getByRole("checkbox", { name: `${first} 선택` }));
+    await user.click(screen.getByRole("checkbox", { name: `${second} 선택` }));
+    expect(screen.getByText("2건 선택됨")).toHaveAttribute("role", "status");
+
+    await user.click(bulkButton);
+    const dialog = await screen.findByRole("dialog", { name: "일괄 배정" });
+    expect(within(dialog).getByRole("list", { name: "고른 의뢰번호" })).toHaveTextContent(first);
+
+    // 법무대리인을 고르지 않고 제출: 오류 문구를 연결하고 초점을 옮김
+    await user.click(within(dialog).getByRole("button", { name: "2건 배정하기" }));
+    const select = within(dialog).getByRole("combobox", { name: /법무대리인/ });
+    expect(select).toHaveAttribute("aria-invalid", "true");
+    expect(select).toHaveAccessibleDescription("법무대리인을 선택해 주세요.");
+    expect(select).toHaveFocus();
+
+    await waitFor(() =>
+      expect(within(dialog).getByRole("option", { name: "데모 법무법인" })).toBeInTheDocument(),
+    );
+    await user.selectOptions(select, "데모 법무법인");
+    expect(select).not.toHaveAttribute("aria-invalid");
+    await user.click(within(dialog).getByRole("button", { name: "2건 배정하기" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument(), {
+      timeout: 3000,
+    });
+    await waitFor(() => expect(shownNumbers()).not.toContain(first), { timeout: 3000 });
+    expect(shownNumbers()).not.toContain(second);
+    for (const rqstNo of [first, second]) {
+      expect(REGISTRATIONS.find((item) => item.rqstNo === rqstNo)).toMatchObject({
+        statCd: PROC_STAT_CD.MATCH,
+        lgagMembNm: "데모 법무법인",
+      });
+    }
+  });
+
+  it("일괄 배정: 배정 정보가 빠진 건은 결과에 사유와 배정 화면 링크로 보여 준다", async () => {
+    const user = userEvent.setup();
+    const target = REGISTRATIONS.find((item) => item.statCd === PROC_STAT_CD.REQUEST)!;
+    target.dbtrNm = "";
+    renderWithProviders(<Main />);
+    await screen.findAllByText(/^DEMO-\d+$/, {}, { timeout: 3000 });
+
+    await user.click(screen.getByRole("checkbox", { name: `${target.rqstNo} 선택` }));
+    await user.click(screen.getByRole("button", { name: "일괄 배정" }));
+    const dialog = await screen.findByRole("dialog", { name: "일괄 배정" });
+    await waitFor(() =>
+      expect(within(dialog).getByRole("option", { name: "데모 법무법인" })).toBeInTheDocument(),
+    );
+    await user.selectOptions(within(dialog).getByRole("combobox"), "데모 법무법인");
+    await user.click(within(dialog).getByRole("button", { name: "1건 배정하기" }));
+
+    const alert = await within(dialog).findByRole("alert", {}, { timeout: 3000 });
+    expect(alert).toHaveTextContent("0건 배정, 1건은 배정하지 못했습니다.");
+    expect(within(dialog).getByText(/배정 정보가 없습니다\(채무자\)/)).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("link", { name: `${target.rqstNo} 배정 화면으로 이동` }),
+    ).toHaveAttribute("href", `/admin/assign/assign-detail/${target.rqstNo}`);
+    // 양식이 사라지므로 초점은 결과로
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(target.statCd).toBe(PROC_STAT_CD.REQUEST);
   });
 });

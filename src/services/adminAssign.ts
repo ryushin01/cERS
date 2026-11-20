@@ -33,6 +33,16 @@ export const getRqstNoData = () =>
     (response) => response.data,
   );
 
+/*
+ * 일괄 배정: 고른 의뢰들에 법무대리인 한 명을 지정합니다.
+ * 응답 data: { successList: 배정된 의뢰번호[], failList: { rqstNo, reason }[] }
+ * 배정 정보(채무자·주소·채권최고액·설정약정일·등기고유번호)가 빠졌거나 이미 처리된 의뢰는 서버가 실패로 돌려줍니다.
+ */
+export const patchBulkAssign = (body: { rqstNoList: string[]; lgagMembNo: string }) =>
+  axiosBasicInstance
+    .patch(`${API_ADMIN_MATCH}/bulk`, body, { baseURL: adminURI })
+    .then((response) => response.data);
+
 // 배정 신규등록
 export const postCreateAssign = (form: FormData) =>
   axiosBasicInstance.post(`${API_ADMIN_MATCH}`, form, {

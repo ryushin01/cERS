@@ -21,11 +21,13 @@ type SelectProps = {
   placeholder?: string;
   /* 화면에 보이는 라벨이 없을 때 스크린 리더가 읽을 이름 */
   ariaLabel?: string;
+  /* 오류·안내 문구의 id (aria-describedby) */
+  ariaDescribedBy?: string;
 } & Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>, "className">;
 
 /**
  * @name Select
- * @version 1.1.0
+ * @version 1.2.0
  * @author 류창선 <ryushin0167@gmail.com>
  * @property {string} id           - 셀렉트 id를 정의합니다.
  * @property {boolean} isError     - 셀렉트의 에러 상태를 정의합니다.
@@ -36,6 +38,7 @@ type SelectProps = {
  * @property {function} options    - 셀렉트 선택 옵션들을 정의합니다.
  * @property {function} onChange   - 셀렉트 동작 위해 정의합니다.
  * @property {string} ariaLabel     - 보이는 라벨이 없을 때 스크린 리더용 이름 (aria-label)
+ * @property {string} ariaDescribedBy - 오류·안내 문구의 id (aria-describedby)
  */
 
 export default function Select({
@@ -52,6 +55,7 @@ export default function Select({
   placeholder = "",
   required = false,
   ariaLabel,
+  ariaDescribedBy,
 }: SelectProps) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (onChange) {
@@ -91,6 +95,7 @@ export default function Select({
         className={`_select ${setSize}`}
         required={required}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
         aria-invalid={isError || undefined}
       >
         {placeholder && (

@@ -89,6 +89,25 @@ const toDashedDate = (value: unknown) => {
     : date;
 };
 
+/* 단건 배정 화면에서 필수인 배정 정보 */
+const REQUIRED_ASSIGN_FIELDS: [keyof MockRegistration, string][] = [
+  ["dbtrNm", "채무자"],
+  ["rdnmAddr", "담보목적물 주소"],
+  ["bndMaxAmt", "채권최고액"],
+  ["seDt", "설정약정일"],
+  ["unqRgstrNo", "등기고유번호"],
+];
+
+/* 일괄 배정할 수 없는 이유 (배정할 수 있으면 빈 문자열) */
+const bulkAssignBlocker = (item?: MockRegistration) => {
+  if (!item) return "의뢰를 찾을 수 없습니다.";
+  if (!REQUEST_TAB_STATUS["00"].includes(item.statCd)) return `이미 ${item.statNm} 상태입니다.`;
+  const missing = REQUIRED_ASSIGN_FIELDS.filter(([key]) => !item[key]).map(([, label]) => label);
+  return missing.length
+    ? `배정 정보가 없습니다(${missing.join(", ")}). 배정 화면에서 입력해 주세요.`
+    : "";
+};
+
 /* 새 의뢰번호: 기존 의뢰번호 중 가장 큰 번호 + 1 */
 const nextRequestNo = () => {
   const max = Math.max(...REGISTRATIONS.map((item) => Number(item.rqstNo.replace(/\D/g, "")) || 0));
@@ -398,6 +417,35 @@ const routes: Route[] = [
           : {}),
       });
       return ok(null, "등록이 완료되었습니다.");
+    },
+  },
+  {
+    // 일괄 배정: 고른 의뢰들에 법무대리인 한 명을 지정 (배정 정보가 빠졌거나 이미 처리된 건은 실패로 돌려줌)
+    method: "patch",
+    pattern: /^\/api\/admin\/match\/bulk$/,
+    handler: (_p, _m, body) => {
+      const lawyer = MEMBERS["10"].find((member) => member.membNo === body.lgagMembNo);
+      if (!lawyer) return { code: "99", msg: "법무대리인을 선택해 주세요.", data: null };
+
+      const rqstNoList = Array.isArray(body.rqstNoList) ? body.rqstNoList.map(String) : [];
+      const successList: string[] = [];
+      const failList: { rqstNo: string; reason: string }[] = [];
+      [...new Set(rqstNoList)].forEach((rqstNo) => {
+        const target = findRegistration(rqstNo);
+        const reason = bulkAssignBlocker(target);
+        if (reason || !target) {
+          failList.push({ rqstNo, reason });
+          return;
+        }
+        Object.assign(target, {
+          lgagMembNm: lawyer.membNm,
+          lgagMembHpno: "010-0000-0000",
+          mtchDtm: dateFromToday(0),
+        });
+        changeStatus(target, PROC_STAT_CD.MATCH, { procRsnCnts: "일괄 배정" });
+        successList.push(rqstNo);
+      });
+      return ok({ successList, failList }, `${successList.length}건 배정이 완료되었습니다.`);
     },
   },
   {

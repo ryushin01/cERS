@@ -268,7 +268,8 @@ export const REGISTRATIONS: MockRegistration[] = STATUS_SEQUENCE.map((statCd, i)
     bndMembHpno: "02-000-0000",
     mtchDtm: HAS_LAWYER(statCd) ? dateFromToday(crtOffset + 1) : "",
     acptRptDtm: HAS_RECEIPT(statCd) ? dateFromToday(Math.min(crtOffset + 4, 0)) : "",
-    unqRgstrNo: HAS_LAWYER(statCd) ? `11012026${String(100000 + i * 731).slice(0, 6)}` : "",
+    // 관리자가 신규등록하며 고유번호까지 조회해 둔 의뢰로 보고 모든 건에 둡니다. (일괄 배정 대상)
+    unqRgstrNo: `11012026${String(100000 + i * 731).slice(0, 6)}`,
     rgstrAcptYn: HAS_RECEIPT(statCd) ? "Y" : "N",
     realeCd: "00",
     lotnumAddrCd: "01",

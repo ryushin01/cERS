@@ -10,6 +10,8 @@ type CheckboxProps = {
   labelText: string;
   checked: boolean;
   disabled?: boolean;
+  /* 라벨 글자를 화면에서 숨기고 스크린 리더에만 전달 (표 안 선택 칸처럼 아이콘만 보일 때) */
+  isHiddenLabel?: boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 } & Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, "className">;
 
@@ -22,10 +24,18 @@ type CheckboxProps = {
  * @property {string} labelText         - 라벨 텍스트
  * @property {boolean} checked          - 선택값
  * @property {boolean} disabled         - 비활성화 여부
+ * @property {boolean} isHiddenLabel    - 라벨 글자를 화면에서 숨김 (스크린 리더에는 전달)
  * @property {function} onChange        - 선택 시 호출 함수
  */
-export default function Checkbox({ name, labelText, checked, disabled, onChange }: CheckboxProps) {
-  const className = `_checkbox`;
+export default function Checkbox({
+  name,
+  labelText,
+  checked,
+  disabled,
+  isHiddenLabel = false,
+  onChange,
+}: CheckboxProps) {
+  const className = `_checkbox ${isHiddenLabel ? "_icon-only" : ""}`;
 
   return (
     <label className={className}>
@@ -42,7 +52,7 @@ export default function Checkbox({ name, labelText, checked, disabled, onChange 
         width={20}
         height={20}
       />
-      <span>{labelText}</span>
+      <span className={isHiddenLabel ? "sr-only" : undefined}>{labelText}</span>
     </label>
   );
 }

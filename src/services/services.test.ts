@@ -244,6 +244,23 @@ describe("변경 요청의 메서드·본문", () => {
     expect(JSON.parse(req.data)).toEqual({ rqstNo: "DEMO-002396" });
   });
 
+  it("일괄 배정: PATCH, 관리자 서버, 본문에 의뢰번호 목록과 법무대리인", async () => {
+    await services.adminAssign.patchBulkAssign({
+      rqstNoList: ["DEMO-002400", "DEMO-002399"],
+      lgagMembNo: "LAW1",
+    });
+    const req = await lastRequest();
+    expect(req).toMatchObject({
+      method: "patch",
+      origin: ADMIN_URI,
+      path: "/api/admin/match/bulk",
+    });
+    expect(JSON.parse(req.data)).toEqual({
+      rqstNoList: ["DEMO-002400", "DEMO-002399"],
+      lgagMembNo: "LAW1",
+    });
+  });
+
   it("의뢰 등록: multipart로 POST", async () => {
     const form = new FormData();
     form.append("req", "{}");
