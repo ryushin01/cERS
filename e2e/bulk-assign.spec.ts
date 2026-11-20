@@ -42,5 +42,6 @@ test("배정관리에서 여러 건을 키보드로 골라 법무대리인을 �
   await dialog.getByRole("button", { name: "2건 배정하기" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page.getByText("2건을 배정했습니다.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "일괄 배정" })).toBeFocused();
   await expect(badge).toHaveText(`미배정 ${before - 2}건`);
 });

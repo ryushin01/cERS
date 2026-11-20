@@ -75,8 +75,10 @@ describe("배정관리", () => {
     renderWithProviders(<Main />);
     await screen.findAllByText(/^DEMO-\d+$/, {}, { timeout: 3000 });
 
+    // 고른 건이 없으면 열리지 않음 (버튼은 초점을 받을 수 있게 disabled로 두지 않음)
     const bulkButton = screen.getByRole("button", { name: "일괄 배정" });
-    expect(bulkButton).toBeDisabled();
+    await user.click(bulkButton);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
     const [first, second] = shownNumbers() as string[];
     await user.click(screen.getByRole("checkbox", { name: `${first} 선택` }));
@@ -104,6 +106,8 @@ describe("배정관리", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument(), {
       timeout: 3000,
     });
+    // 모달을 연 버튼으로 초점이 돌아옴 (고른 건이 비어도 버튼이 비활성이 아님)
+    expect(bulkButton).toHaveFocus();
     await waitFor(() => expect(shownNumbers()).not.toContain(first), { timeout: 3000 });
     expect(shownNumbers()).not.toContain(second);
     for (const rqstNo of [first, second]) {

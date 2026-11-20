@@ -38,6 +38,17 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
   const [isBulkAssignOpen, setIsBulkAssignOpen] = useState(false);
   const isNotAllotted = tabIndex === "00";
 
+  const handleBulkAssignOpen = () => {
+    if (selected.length === 0) {
+      openToast({
+        message: "일괄 배정할 의뢰를 먼저 골라 주세요.",
+        position: isDesktop ? "top" : "bottom",
+      });
+      return;
+    }
+    setIsBulkAssignOpen(true);
+  };
+
   /* 1. 탭인덱스가 바뀌면 페이지는 무조건 1로 세팅 */
   useAdjustState([tabIndex, searchRqstNo, selectedNumeric], () => setPage(1));
 
@@ -114,8 +125,8 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
                   shape="solid"
                   size="sm"
                   color="main100"
-                  disabled={selected.length === 0}
-                  onClick={() => setIsBulkAssignOpen(true)}
+                  // disabled로 두면 배정 후 모달이 닫힐 때 이 버튼으로 초점이 돌아오지 못하므로, 고른 건이 없으면 안내만 함
+                  onClick={handleBulkAssignOpen}
                 >
                   일괄 배정
                 </Button>
