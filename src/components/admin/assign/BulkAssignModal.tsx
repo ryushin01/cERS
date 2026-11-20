@@ -30,11 +30,12 @@ const EMPTY_LAWYER_MESSAGE = "법무대리인을 선택해 주세요.";
 
 /**
  * @name BulkAssignModal
- * @version 1.0.0
+ * @version 1.0.1
  * @author 류창선 <ryushin0167@gmail.com>
  * @description 배정관리 미배정 목록에서 고른 의뢰들에 법무대리인 한 명을 한 번에 지정합니다.
  *              - 법무대리인을 고르지 않고 제출하면 오류 문구를 select에 연결(aria-invalid·aria-describedby)하고 초점을 옮김
  *              - 모두 배정되면 토스트로 알리고 닫음. 일부가 실패하면 결과(실패 의뢰번호·사유, 배정 화면 링크)를 보여 주고 초점을 결과로 옮김
+ *              - 처리 중에 닫아도 요청이 끝나면 목록을 갱신하고 배정된 건의 선택을 풂 (다시 연 모달은 닫지 않음)
  *              - 배정 정보(채무자·주소 등)가 빠진 의뢰는 서버가 실패로 돌려주므로, 배정 화면에서 입력한 뒤 배정합니다.
  * @property {string[]} requestNos  - 고른 의뢰번호
  * @property {function} onAssigned  - 처리 후 배정된 의뢰번호 전달
@@ -60,36 +61,20 @@ export default function BulkAssignModal({ requestNos, onAssigned, onClose }: Bul
   });
   const lawyerOptions = getMemberOptions(memberList);
 
+  /* 목록 갱신·선택 해제: 처리 중에 모달을 닫아도 요청이 끝나면 해야 하므로 훅 옵션에 둠 */
   const { mutate } = useMutation({
     mutationKey: ["bulk-assign"],
     mutationFn: patchBulkAssign,
     onSuccess: (response) => {
-      submitLock.unlock();
-      if (response.code !== "00") {
-        setRequestError(response.msg || "배정하지 못했습니다. 다시 시도해 주세요.");
-        return;
-      }
-      const data: BulkAssignResult = {
-        successList: response.data?.successList ?? [],
-        failList: response.data?.failList ?? [],
-      };
+      if (response.code !== "00") return;
+      const successList = response.data?.successList ?? [];
       // 배정된 건이 있으면 목록·미배정 건수를 다시 받음
-      if (data.successList.length) {
+      if (successList.length) {
         queryClient.invalidateQueries({ queryKey: ["search-supplementlist"] });
       }
-      onAssigned(data.successList);
-      if (!data.failList.length) {
-        openToast({ message: `${data.successList.length}건을 배정했습니다.`, position: "top" });
-        onClose();
-        return;
-      }
-      setResult(data);
+      onAssigned(successList);
     },
-    onError: (error) => {
-      submitLock.unlock();
-      setRequestError("배정하지 못했습니다. 잠시 후 다시 시도해 주세요.");
-      console.error(error);
-    },
+    onError: (error) => console.error(error),
   });
 
   /* 일부 실패 결과가 나오면 양식이 사라지므로 초점을 결과로 옮김 */
@@ -106,7 +91,34 @@ export default function BulkAssignModal({ requestNos, onAssigned, onClose }: Bul
     }
     if (!submitLock.lock()) return; // 중복 제출 방지
     setRequestError("");
-    mutate({ rqstNoList: requestNos, lgagMembNo: lawyer });
+    mutate(
+      { rqstNoList: requestNos, lgagMembNo: lawyer },
+      {
+        // mutate에 넘긴 콜백은 이 모달이 열려 있을 때만 실행됨 (처리 중에 닫으면 호출되지 않음).
+        // 그래서 취소한 뒤 다시 연 모달을 앞 요청의 결과가 닫지 않음
+        onSuccess: (response) => {
+          submitLock.unlock();
+          if (response.code !== "00") {
+            setRequestError(response.msg || "배정하지 못했습니다. 다시 시도해 주세요.");
+            return;
+          }
+          const data: BulkAssignResult = {
+            successList: response.data?.successList ?? [],
+            failList: response.data?.failList ?? [],
+          };
+          if (!data.failList.length) {
+            openToast({ message: `${data.successList.length}건을 배정했습니다.`, position: "top" });
+            onClose();
+            return;
+          }
+          setResult(data);
+        },
+        onError: () => {
+          submitLock.unlock();
+          setRequestError("배정하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        },
+      },
+    );
   };
 
   return (

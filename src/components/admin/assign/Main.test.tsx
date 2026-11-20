@@ -144,4 +144,50 @@ describe("배정관리", () => {
     expect(dialog.contains(document.activeElement)).toBe(true);
     expect(target.statCd).toBe(PROC_STAT_CD.REQUEST);
   });
+  it("일괄 배정: 처리 중에 취소하고 다시 연 모달은 앞 요청이 끝나도 닫히지 않는다", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Main />);
+    await screen.findAllByText(/^DEMO-\d+$/, {}, { timeout: 3000 });
+
+    const [first, second] = shownNumbers() as string[];
+    await user.click(screen.getByRole("checkbox", { name: `${first} 선택` }));
+    await user.click(screen.getByRole("checkbox", { name: `${second} 선택` }));
+    await user.click(screen.getByRole("button", { name: "일괄 배정" }));
+    const dialog = await screen.findByRole("dialog", { name: "일괄 배정" });
+    await waitFor(() =>
+      expect(within(dialog).getByRole("option", { name: "데모 법무법인" })).toBeInTheDocument(),
+    );
+    await user.selectOptions(within(dialog).getByRole("combobox"), "데모 법무법인");
+    await user.click(within(dialog).getByRole("button", { name: "2건 배정하기" }));
+
+    // 응답이 오기 전에 취소하고 다시 엶
+    await user.click(within(dialog).getByRole("button", { name: "취소" }));
+    await user.click(screen.getByRole("button", { name: "일괄 배정" }));
+    await screen.findByRole("dialog", { name: "일괄 배정" });
+
+    // 앞 요청이 끝나면 목록은 갱신되지만, 다시 연 모달은 그대로
+    await waitFor(() => expect(shownNumbers()).not.toContain(first), { timeout: 3000 });
+    expect(screen.getByRole("dialog", { name: "일괄 배정" })).toBeInTheDocument();
+    expect(REGISTRATIONS.find((item) => item.rqstNo === second)?.statCd).toBe(PROC_STAT_CD.MATCH);
+  });
+
+  it("일괄 배정: 새 목록을 불러오는 동안 앞 목록에서 고른 건은 새 목록에 없으면 풀린다", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Main />);
+    await screen.findAllByText(/^DEMO-\d+$/, {}, { timeout: 3000 });
+    const [first] = shownNumbers() as string[];
+    const target = REGISTRATIONS.find((item) => item.rqstNo === first)!;
+    const before = target.statCd;
+
+    // 정렬을 바꿔 다시 조회하는 동안(앞 목록이 보이는 동안) 고르고, 그사이 다른 곳에서 배정되어 새 목록에서 빠짐
+    await user.selectOptions(screen.getByRole("combobox", { name: "정렬 순서" }), "대출실행일 순");
+    target.statCd = PROC_STAT_CD.MATCH;
+    await user.click(screen.getByRole("checkbox", { name: `${first} 선택` }));
+    expect(screen.getByText("1건 선택됨")).toBeInTheDocument();
+
+    await waitFor(() => expect(shownNumbers()).not.toContain(first), { timeout: 3000 });
+    expect(screen.queryByText("1건 선택됨")).not.toBeInTheDocument();
+    expect(screen.getByText("배정할 의뢰를 고르면 일괄 배정할 수 있습니다.")).toBeInTheDocument();
+    target.statCd = before;
+  });
 });

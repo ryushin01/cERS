@@ -17,6 +17,8 @@ import BulkAssignModal from "./BulkAssignModal";
 import NotAllottedTable from "./NotAllottedTable";
 import Table from "./Table";
 
+import type { AssignListItem } from "@types";
+
 interface ListProps {
   tabIndex: string;
   searchRqstNo: string;
@@ -31,7 +33,7 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
 
   const [unMatchCount, setUnMatchCount] = useState<number>();
   const [page, setPage] = useState<number>(1);
-  const [data, setData] = useState([]); // 테이블 데이터
+  const [data, setData] = useState<AssignListItem[]>([]); // 테이블 데이터
   const [total, setTotal] = useState<number>(0); // 전체 데이터 개수
   /* 일괄 배정: 이 페이지에서 고른 의뢰번호 */
   const [selected, setSelected] = useState<string[]>([]);
@@ -86,7 +88,10 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
   // 새 페이지를 불러오는 동안에도 앞의 결과를 보여 주도록 상태로 둡니다.
   useAdjustState([spplListData], () => {
     if (!spplListData) return;
-    setData(spplListData.mtchList || []); // data set
+    const rows: AssignListItem[] = spplListData.mtchList || [];
+    setData(rows); // data set
+    // 고른 의뢰는 새로 보이는 행 안에서만 유지 (불러오는 동안 앞 결과에서 고른 건·목록에서 빠진 건은 해제)
+    setSelected((current) => current.filter((rqstNo) => rows.some((row) => row.rqstNo === rqstNo)));
     setTotal(spplListData.totalElements || 0); //total set
     setUnMatchCount(spplListData.unMtchCnt || 0); //unmatch set
   });
