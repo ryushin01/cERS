@@ -46,4 +46,7 @@ export const Deletable: Story = {
   args: { slides: slides.map((slide) => ({ ...slide, onDelete: fn() })) },
 };
 
+/** documentName을 넘기면 슬라이드가 "크게 보기" 버튼이 되어 확대·회전·쪽 이동 보기(DocumentViewer)를 엽니다. */
+export const Zoomable: Story = { args: { documentName: "등기자료" } };
+
 export const Empty: Story = { args: { slides: [] } };

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import Image from "next/image";
 import { Controller, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { LeftArrowIcon, RightArrowIcon } from "@icons24";
 import { CancelIcon } from "@icons36";
 
+import DocumentViewer from "./DocumentViewer";
 import Frame from "./Frame";
 import Loading from "./Loading";
 
@@ -26,21 +27,31 @@ type SwiperGalleryProps = {
   className?: string;
   paginationType?: "fraction" | "progressbar";
   isLoading?: boolean;
+  /* 문서 이름 (예: 등기자료). 지정하면 슬라이드를 눌러 크게 보기(확대·회전·쪽 이동)를 열 수 있음 */
+  documentName?: string;
+  isDesktop?: boolean;
 };
 
 /**
  * @name SwiperGallery
- * @version 1.0.0
+ * @version 1.1.0
  * @author 류창선 <ryushin0167@gmail.com>
  * @description 등기자료 이미지 슬라이드 공통 컴포넌트입니다. 부모 컴포넌트가 클라이언트 컴포넌트이어야 합니다.
  *              슬라이드 내용(이미지)은 사용하는 쪽에서 만들어 전달합니다.
+ *              documentName을 넘기면 슬라이드가 "크게 보기" 버튼이 되어 판독용 보기(DocumentViewer)를 엽니다.
+ *              보기를 닫으면 초점은 누른 슬라이드 버튼으로 돌아갑니다(Modal).
  */
 export default function SwiperGallery({
   slides,
   className = "",
   paginationType = "fraction",
   isLoading = false,
+  documentName,
+  isDesktop = true,
 }: SwiperGalleryProps) {
+  /* 크게 보기로 연 쪽 (닫혀 있으면 null) */
+  const [viewerPage, setViewerPage] = useState<number | null>(null);
+
   return (
     <>
       {isLoading && <Loading />}
@@ -60,10 +71,21 @@ export default function SwiperGallery({
             nextEl: "._btn-next",
           }}
         >
-          {slides.map(({ key, content, onDelete }) => (
+          {slides.map(({ key, content, onDelete }, index) => (
             // swiper-slide 태그 정의
             <SwiperSlide tag="li" key={key}>
-              <Frame>{content}</Frame>
+              {documentName ? (
+                <button
+                  type="button"
+                  className="_btn-view"
+                  aria-label={`${documentName} ${index + 1}쪽 크게 보기`}
+                  onClick={() => setViewerPage(index)}
+                >
+                  <Frame>{content}</Frame>
+                </button>
+              ) : (
+                <Frame>{content}</Frame>
+              )}
 
               {onDelete && (
                 <button
@@ -85,6 +107,16 @@ export default function SwiperGallery({
           <Image src={RightArrowIcon} alt="" width={24} height={24} />
         </button>
       </div>
+
+      {documentName && viewerPage !== null && (
+        <DocumentViewer
+          documentName={documentName}
+          pages={slides.map(({ key, content }) => ({ key, content }))}
+          initialPage={viewerPage}
+          isDesktop={isDesktop}
+          onClose={() => setViewerPage(null)}
+        />
+      )}
     </>
   );
 }

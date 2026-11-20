@@ -59,6 +59,8 @@ export default function ResponsiveSwiper({
       className={className}
       paginationType={isDesktop ? "fraction" : "progressbar"}
       isLoading={imageLoading}
+      documentName="등기자료"
+      isDesktop={isDesktop}
     />
   );
 }
