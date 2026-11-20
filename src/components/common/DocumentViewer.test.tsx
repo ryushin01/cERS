@@ -149,6 +149,28 @@ describe("DocumentViewer", () => {
     expect(status()).not.toHaveTextContent("회전");
   });
 
+  it("열려 있는 동안 쪽 목록이 바뀌어도 회전은 같은 쪽에 남는다", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <DocumentViewer documentName="등기자료" pages={pages} initialPage={1} onClose={() => {}} />,
+      { container: document.getElementById("app")! },
+    );
+    await user.keyboard("r");
+    expect(status()).toHaveTextContent("3쪽 중 2쪽, 배율 100%, 90도 회전");
+
+    // 다시 조회해 첫 쪽이 빠지면, 같은 자리(2쪽)에 온 다른 쪽은 회전하지 않은 상태
+    rerender(
+      <DocumentViewer
+        documentName="등기자료"
+        pages={pages.slice(0, 1).concat(pages.slice(2))}
+        initialPage={1}
+        onClose={() => {}}
+      />,
+    );
+    expect(screen.getByRole("img", { name: "등기자료 3번 이미지" })).toBeInTheDocument();
+    expect(status()).not.toHaveTextContent("회전");
+  });
+
   it("문서 영역에 초점이 있으면 방향키는 쪽을 넘기지 않는다(확대한 화면 이동)", async () => {
     const user = await openViewer();
     const stage = screen.getByRole("region", { name: "등기자료 1쪽" });

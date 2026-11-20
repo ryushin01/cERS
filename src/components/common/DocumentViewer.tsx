@@ -70,11 +70,12 @@ export default function DocumentViewer({
   // 열려 있는 동안 이미지 목록이 다시 조회되어 쪽 수가 줄어도 없는 쪽을 가리키지 않게 함
   const pageIndex = clamp(selectedPage, 0, lastIndex);
   const [zoomIndex, setZoomIndex] = useState(DEFAULT_ZOOM_INDEX);
-  // 쪽마다 따로 회전 (스캔 방향이 쪽마다 다를 수 있음)
-  const [rotations, setRotations] = useState<Record<number, number>>({});
+  // 쪽마다 따로 회전 (스캔 방향이 쪽마다 다를 수 있음). 목록이 다시 조회되어 순서가 바뀌어도 같은 쪽에 남도록 key로 저장
+  const [rotations, setRotations] = useState<Record<string, number>>({});
+  const pageKey = pages[pageIndex]?.key ?? "";
 
   const zoom = ZOOM_LEVELS[zoomIndex];
-  const degree = toDegree(rotations[pageIndex] ?? 0);
+  const degree = toDegree(rotations[pageKey] ?? 0);
   const isFirstPage = pageIndex <= 0;
   const isLastPage = pageIndex >= total - 1;
   const isMinZoom = zoomIndex <= 0;
@@ -86,11 +87,11 @@ export default function DocumentViewer({
   const rotate = (quarterTurns: number) =>
     setRotations((current) => ({
       ...current,
-      [pageIndex]: (current[pageIndex] ?? 0) + quarterTurns,
+      [pageKey]: (current[pageKey] ?? 0) + quarterTurns,
     }));
   const reset = () => {
     setZoomIndex(DEFAULT_ZOOM_INDEX);
-    setRotations((current) => ({ ...current, [pageIndex]: 0 }));
+    setRotations((current) => ({ ...current, [pageKey]: 0 }));
   };
 
   /* 문서 영역 크기: 90·270도면 가로세로가 바뀌므로 바깥 영역도 바꿔 스크롤 범위를 맞춤 */

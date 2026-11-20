@@ -61,6 +61,16 @@ for (const viewport of [
     );
     expect(isScrollable).toBe(true);
 
+    // 문서 영역에 초점을 두면 방향키는 쪽을 넘기지 않고 확대한 화면을 움직임
+    await stage.focus();
+    const scrollTop = await stage.evaluate((element) => element.scrollTop);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowRight");
+    await expect
+      .poll(() => stage.evaluate((element) => element.scrollTop))
+      .toBeGreaterThan(scrollTop);
+    await expect(status).toHaveText("3쪽 중 2쪽, 배율 200%, 90도 회전");
+
     // Esc는 크게 보기만 닫고, 초점은 누른 슬라이드 버튼으로 돌아감
     await page.keyboard.press("Escape");
     await expect(viewer).toHaveCount(0);
