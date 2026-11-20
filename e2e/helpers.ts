@@ -21,6 +21,7 @@ export const PAGES: Record<UserType, string[]> = {
     "/admin/registration",
     `/admin/registration/registration-detail/${REVIEWING_NO}`,
     `/admin/registration/registration-acceptance/${REVIEWING_NO}`,
+    "/admin/audit",
     "/admin/member",
     "/admin/notice",
   ],

@@ -22,6 +22,9 @@ export const API_FILES = "/api/files";
 // 관리자 - 등기관리 관련 api
 export const API_ADMIN_REGISTRATION = "/api/admin/registration";
 
+// 관리자 - 감사 기록 api
+export const API_ADMIN_AUDIT = "/api/admin/audit";
+
 // 관리자 - 배정관리 관련 api
 export const API_ADMIN_MATCH = "/api/admin/match";
 

@@ -89,6 +89,27 @@ const toDashedDate = (value: unknown) => {
     : date;
 };
 
+/*
+ * 감사 기록: 모든 의뢰의 진행 이력을 "누가·언제·무엇을" 한 줄씩으로 펼칩니다. (최근이 앞)
+ * 진행 이력은 최근 이력이 앞이므로, 바로 뒤 이력이 바뀌기 전 상태입니다.
+ */
+const auditLog = () =>
+  REGISTRATIONS.flatMap(({ rqstNo, statHistList }) =>
+    statHistList.map((history, index) => {
+      const before = statHistList[index + 1]?.statNm ?? "";
+      return {
+        seq: `${rqstNo}-${statHistList.length - index}`,
+        crtDtm: history.crtTm ? `${history.crtDtm} ${history.crtTm}` : history.crtDtm,
+        crtMembNm: history.crtMembNm,
+        rqstNo,
+        actnNm: before ? "상태 변경" : "의뢰 등록",
+        bfrStatNm: before,
+        aftStatNm: history.statNm,
+        rsnCnts: history.procRsnCnts,
+      };
+    }),
+  ).sort((a, b) => b.crtDtm.localeCompare(a.crtDtm) || b.seq.localeCompare(a.seq));
+
 /* 단건 배정 화면에서 필수인 배정 정보 */
 const REQUIRED_ASSIGN_FIELDS: [keyof MockRegistration, string][] = [
   ["dbtrNm", "채무자"],
@@ -604,6 +625,27 @@ const routes: Route[] = [
         changeStatus(target, statCd, { procRsnCnts });
       }
       return ok();
+    },
+  },
+
+  /* 관리자 - 감사 기록 (누가 언제 무엇을 바꿨는지) */
+  {
+    method: "get",
+    pattern: /^\/api\/admin\/audit\/list$/,
+    handler: (params) => {
+      const fromDate = toDashedDate(params.get("fromDate"));
+      const toDate = toDashedDate(params.get("toDate"));
+      const rqstNo = params.get("searchRqstNo") ?? "";
+      const membNm = params.get("searchMembNm") ?? "";
+      const filtered = auditLog().filter(
+        (item) =>
+          item.rqstNo.includes(rqstNo) &&
+          item.crtMembNm.includes(membNm) &&
+          (!fromDate || item.crtDtm.slice(0, 10) >= fromDate) &&
+          (!toDate || item.crtDtm.slice(0, 10) <= toDate),
+      );
+      const { items, totalElements, totalPages } = paginate(filtered, params);
+      return ok({ auditList: items, totalElements, totalPages });
     },
   },
 

@@ -19,6 +19,7 @@ let requests: InternalAxiosRequestConfig[] = [];
 let services: {
   assignDetail: typeof import("./assignDetail");
   adminAssign: typeof import("./adminAssign");
+  adminAudit: typeof import("./adminAudit");
   file: typeof import("./file");
   home: typeof import("./home");
   registrationManagement: typeof import("./registrationManagement");
@@ -42,6 +43,7 @@ beforeAll(async () => {
   services = {
     assignDetail: await import("./assignDetail"),
     adminAssign: await import("./adminAssign"),
+    adminAudit: await import("./adminAudit"),
     file: await import("./file"),
     home: await import("./home"),
     registrationManagement: await import("./registrationManagement"),
@@ -193,6 +195,30 @@ describe("조회 요청의 쿼리 값", () => {
     )[name];
     await service(TRICKY);
     expect(await lastRequest()).toMatchObject({ origin, path, query: { rqstno: TRICKY } });
+  });
+
+  it("감사 기록 목록: 기간·의뢰번호·처리자가 그대로 전달된다 (관리자 서버)", async () => {
+    await services.adminAudit.getAuditList({
+      fromDate: "20261101",
+      toDate: "20261120",
+      searchRqstNo: TRICKY,
+      searchMembNm: "데모 법무법인",
+      pageNum: 2,
+      pageSize: 10,
+    });
+    expect(await lastRequest()).toMatchObject({
+      method: "get",
+      origin: ADMIN_URI,
+      path: "/api/admin/audit/list",
+      query: {
+        fromDate: "20261101",
+        toDate: "20261120",
+        searchRqstNo: TRICKY,
+        searchMembNm: "데모 법무법인",
+        pageNum: "2",
+        pageSize: "10",
+      },
+    });
   });
 
   it("배정 등록정보 조회: 의뢰번호를 경로에 넣을 때 인코딩한다", async () => {
