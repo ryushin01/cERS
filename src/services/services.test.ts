@@ -20,6 +20,7 @@ let services: {
   assignDetail: typeof import("./assignDetail");
   adminAssign: typeof import("./adminAssign");
   adminAudit: typeof import("./adminAudit");
+  adminStatistics: typeof import("./adminStatistics");
   file: typeof import("./file");
   home: typeof import("./home");
   registrationManagement: typeof import("./registrationManagement");
@@ -44,6 +45,7 @@ beforeAll(async () => {
     assignDetail: await import("./assignDetail"),
     adminAssign: await import("./adminAssign"),
     adminAudit: await import("./adminAudit"),
+    adminStatistics: await import("./adminStatistics"),
     file: await import("./file"),
     home: await import("./home"),
     registrationManagement: await import("./registrationManagement"),
@@ -218,6 +220,20 @@ describe("조회 요청의 쿼리 값", () => {
         pageNum: "2",
         pageSize: "10",
       },
+    });
+  });
+
+  it("통계: 기간·집계 단위가 그대로 전달된다 (관리자 서버)", async () => {
+    await services.adminStatistics.getStatistics({
+      fromDate: "20261022",
+      toDate: "20261120",
+      unit: "WEEK",
+    });
+    expect(await lastRequest()).toMatchObject({
+      method: "get",
+      origin: ADMIN_URI,
+      path: "/api/admin/statistics",
+      query: { fromDate: "20261022", toDate: "20261120", unit: "WEEK" },
     });
   });
 

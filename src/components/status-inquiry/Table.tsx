@@ -19,7 +19,7 @@ type contentsProps = {
   data: rgstrList[];
   setQueryTime: Dispatch<React.SetStateAction<Date>>;
 };
-type rgstrList = {
+export type rgstrList = {
   rqstNo: string;
   crtDtm: string;
   execDt: string;

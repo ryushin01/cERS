@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PROC_STAT_CD } from "@constants/code";
+import { getStasusListData } from "@services/statusInquiry";
 import { REGISTRATIONS } from "@/mocks/data";
 import { mockDesktopMatchMedia, renderWithProviders } from "@/test/renderWithProviders";
 
@@ -12,6 +13,12 @@ import List from "./List";
  * 통합 테스트: 금융기관 현황조회의 검색 조건이 목업 API까지 전달되어 목록에 반영되는지 확인합니다.
  * 기대값은 목업 데이터에서 직접 계산합니다.
  */
+
+/* 기본은 실제 요청(목업 API), 실패 응답이 필요한 테스트에서만 한 번 바꿈 */
+vi.mock("@services/statusInquiry", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@services/statusInquiry")>();
+  return { ...actual, getStasusListData: vi.fn(actual.getStasusListData) };
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -152,5 +159,29 @@ describe("현황조회 검색", () => {
     await search();
     await new Promise((resolve) => setTimeout(resolve, 300));
     await expectShown(expected);
+  });
+
+  it("엑셀 내보내기: 중간 쪽이 업무 실패면 앞 쪽만 담긴 파일을 내려받지 않고 실패로 끝낸다", async () => {
+    renderWithProviders(<List isDesktop />);
+    await expectShown(REGISTRATIONS);
+
+    const download = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const logError = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(getStasusListData)
+      .mockResolvedValueOnce({
+        code: "00",
+        msg: "",
+        data: { rgstrList: [{ rqstNo: "DEMO-000001" }], totalPages: 2 },
+      })
+      .mockResolvedValueOnce({ code: "99", msg: "2쪽 조회 실패", data: null });
+    await userEvent.click(screen.getByRole("button", { name: "엑셀 내보내기" }));
+
+    await waitFor(() =>
+      expect(logError).toHaveBeenCalledWith(expect.objectContaining({ message: "2쪽 조회 실패" })),
+    );
+    expect(getStasusListData).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 2, size: 100 }),
+    );
+    expect(download).not.toHaveBeenCalled();
   });
 });

@@ -29,6 +29,7 @@ const AD_PATH_LIST: PathListProps = {
   registration: "등기관리",
   "registration-detail": "등기관리 상세",
   "registration-acceptance": "등기접수증 승인",
+  statistics: "통계",
   audit: "감사기록",
   member: "회원관리",
   "member-detail": "회원관리 상세",

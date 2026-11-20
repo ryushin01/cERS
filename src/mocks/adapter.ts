@@ -122,6 +122,112 @@ const auditLog = () =>
     )
     .map(({ item }) => item);
 
+/* 통계: 날짜(YYYY-MM-DD) 계산 */
+const DAY_MS = 86_400_000;
+const parseDay = (date: string) => new Date(`${date.slice(0, 10)}T00:00:00`);
+const formatDay = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const daysBetween = (from: string, to: string) =>
+  Math.round((parseDay(to).getTime() - parseDay(from).getTime()) / DAY_MS);
+/* YYYY-MM-DD 형식의 실제 날짜인지 (2026-02-30처럼 넘어가는 날짜도 거절) */
+const isValidDay = (date: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(date) && formatDay(parseDay(date)) === date;
+
+/* 집계 단위의 시작일: 일별은 그날, 주별은 그 주 월요일, 월별은 그 달 1일 */
+const bucketStart = (date: string, unit: string) => {
+  const day = parseDay(date);
+  if (unit === "MONTH") day.setDate(1);
+  if (unit === "WEEK") day.setDate(day.getDate() - ((day.getDay() + 6) % 7));
+  return formatDay(day);
+};
+
+const round1 = (value: number) => Math.round(value * 10) / 10;
+
+/*
+ * 기간별 처리 통계
+ * - 건수는 그 기간에 일어난 일을 셈: 의뢰(의뢰일), 접수완료·접수반려·진행취소(그 상태가 된 날)
+ * - 반려율(%) = 접수반려 ÷ (접수완료 + 접수반려), 평균 처리 일수 = 의뢰일부터 접수완료일까지 (접수완료 건)
+ */
+const statistics = (fromDate: string, toDate: string, unit: string) => {
+  type Bucket = {
+    fromDate: string;
+    toDate: string;
+    rqstCnt: number;
+    cmptCnt: number;
+    rtunCnt: number;
+    cnclCnt: number;
+    procDays: number[];
+  };
+  const buckets = new Map<string, Bucket>();
+  for (let day = parseDay(fromDate); formatDay(day) <= toDate; day.setDate(day.getDate() + 1)) {
+    const date = formatDay(day);
+    const key = bucketStart(date, unit);
+    const bucket = buckets.get(key);
+    if (bucket) bucket.toDate = date;
+    else
+      buckets.set(key, {
+        fromDate: date,
+        toDate: date,
+        rqstCnt: 0,
+        cmptCnt: 0,
+        rtunCnt: 0,
+        cnclCnt: 0,
+        procDays: [],
+      });
+  }
+  const bucketOf = (date: string) =>
+    date >= fromDate && date <= toDate ? buckets.get(bucketStart(date, unit)) : undefined;
+
+  REGISTRATIONS.forEach((item) => {
+    const requested = bucketOf(item.crtDtm);
+    if (requested) requested.rqstCnt += 1;
+    item.statHistList.forEach(({ statNm: historyStatNm, crtDtm }) => {
+      const bucket = bucketOf(crtDtm);
+      if (!bucket) return;
+      if (historyStatNm === "접수완료") {
+        bucket.cmptCnt += 1;
+        bucket.procDays.push(Math.max(daysBetween(item.crtDtm, crtDtm), 0));
+      }
+      if (historyStatNm === "접수반려") bucket.rtunCnt += 1;
+      if (historyStatNm === "진행취소") bucket.cnclCnt += 1;
+    });
+  });
+
+  const summarize = ({ procDays, ...counts }: Omit<Bucket, "fromDate" | "toDate">) => ({
+    ...counts,
+    rtunRate:
+      counts.cmptCnt + counts.rtunCnt
+        ? round1((counts.rtunCnt / (counts.cmptCnt + counts.rtunCnt)) * 100)
+        : null,
+    avgProcDays: procDays.length
+      ? round1(procDays.reduce((sum, days) => sum + days, 0) / procDays.length)
+      : null,
+  });
+
+  const periods = [...buckets.values()];
+  const total = periods.reduce(
+    (sum, bucket) => ({
+      rqstCnt: sum.rqstCnt + bucket.rqstCnt,
+      cmptCnt: sum.cmptCnt + bucket.cmptCnt,
+      rtunCnt: sum.rtunCnt + bucket.rtunCnt,
+      cnclCnt: sum.cnclCnt + bucket.cnclCnt,
+      procDays: [...sum.procDays, ...bucket.procDays],
+    }),
+    { rqstCnt: 0, cmptCnt: 0, rtunCnt: 0, cnclCnt: 0, procDays: [] as number[] },
+  );
+  return {
+    fromDate,
+    toDate,
+    unit,
+    summary: summarize(total),
+    periodList: periods.map((bucket) => ({
+      fromDate: bucket.fromDate,
+      toDate: bucket.toDate,
+      ...summarize(bucket),
+    })),
+  };
+};
+
 /* 단건 배정 화면에서 필수인 배정 정보 */
 const REQUIRED_ASSIGN_FIELDS: [keyof MockRegistration, string][] = [
   ["dbtrNm", "채무자"],
@@ -638,6 +744,27 @@ const routes: Route[] = [
         changeStatus(target, statCd, { procRsnCnts });
       }
       return ok();
+    },
+  },
+
+  /* 관리자 - 통계 (기간별 처리 건수·처리 시간·반려율). 기간이 없으면 최근 30일, 최대 1년 */
+  {
+    method: "get",
+    pattern: /^\/api\/admin\/statistics$/,
+    handler: (params) => {
+      const toDate = toDashedDate(params.get("toDate")) || dateFromToday(0);
+      const fromDate = toDashedDate(params.get("fromDate")) || dateFromToday(-29);
+      const unit = ["DAY", "WEEK", "MONTH"].includes(params.get("unit") ?? "")
+        ? params.get("unit")!
+        : "DAY";
+      // 날짜가 아니면 기간을 돌기 전에 거절 (형식이 틀린 날짜는 문자열 비교로 끝나지 않음)
+      if (!isValidDay(fromDate) || !isValidDay(toDate)) {
+        return { code: "99", msg: "조회 기간을 날짜로 정해 주세요.", data: null };
+      }
+      if (fromDate > toDate || daysBetween(fromDate, toDate) > 366) {
+        return { code: "99", msg: "조회 기간은 1년 안으로 정해 주세요.", data: null };
+      }
+      return ok(statistics(fromDate, toDate, unit));
     },
   },
 

@@ -1,7 +1,7 @@
 # cERS - 전자등기 관리 시스템
 
 [![CI](https://github.com/ryushin01/cERS/actions/workflows/ci.yml/badge.svg)](https://github.com/ryushin01/cERS/actions/workflows/ci.yml)
-![version](https://img.shields.io/badge/version-2.5.0-113662)
+![version](https://img.shields.io/badge/version-2.6.0-113662)
 ![Storybook](https://img.shields.io/badge/Storybook-10-FF4785?logo=storybook&logoColor=white)
 
 금융기관·관리자용 부동산 전자등기 관리 웹 애플리케이션의 프론트엔드입니다. **cERS**는 **c**ore **E**lectronic **R**egistration **S**ystem의 줄임말입니다.
@@ -44,15 +44,16 @@
 |---|---|
 | 홈 | 오늘 실행·진행중·접수완료 통계, 실시간 등기현황, 공지사항 |
 | 의뢰목록 | 미배정 / 배정완료 / 진행보류 / 진행취소 탭, 보완필요 사유 팝업, 전자등기 의뢰(파일 업로드)·수정 |
-| 현황조회 | 의뢰번호·진행상태·접수번호·채무자·기간 검색, 등기자료·등기접수증 팝업(크게 보기: 확대·회전·쪽 이동) |
+| 현황조회 | 의뢰번호·진행상태·접수번호·채무자·기간 검색, 등기자료·등기접수증 팝업(크게 보기: 확대·회전·쪽 이동), 엑셀(CSV) 내보내기 |
 | 공지사항 | 목록, 긴급 공지 표시, 첨부파일 다운로드 |
 
 **관리자**
 
 | 메뉴 | 내용 |
 |---|---|
-| 배정관리 | 전자등기 신규 등록, 배정(법무대리인 지정)·보완요청·진행취소, 일괄 배정(여러 건에 법무대리인 한 번에) |
-| 등기관리 | 진행상태별 탭과 건수, 기간 검색, 등기관리 상세, 접수정보 등록, 등기접수증 승인·반려 |
+| 배정관리 | 전자등기 신규 등록, 배정(법무대리인 지정)·보완요청·진행취소, 일괄 배정(여러 건에 법무대리인 한 번에), 엑셀(CSV) 내보내기 |
+| 등기관리 | 진행상태별 탭과 건수, 기간 검색, 등기관리 상세, 접수정보 등록, 등기접수증 승인·반려, 엑셀(CSV) 내보내기 |
+| 통계 | 기간(최근 1주일·1개월·3개월)·단위(일·주·월)별 의뢰·접수완료·접수반려·진행취소 건수, 반려율, 평균 처리 일수, 엑셀(CSV) 내보내기 |
 | 감사기록 | 누가 언제 어떤 의뢰의 진행상태를 바꿨는지 최근 순으로 조회(기간·의뢰번호·처리자) |
 
 관리자가 처리한 결과는 금융기관 화면에도 그대로 반영됩니다. 회원관리·공지관리·법무대리인 화면은 미구현입니다.
@@ -125,7 +126,7 @@ src/
 | [Storybook](docs/storybook.md) | 구성, 스토리 테스트, 배포, 바로 가기 버튼 |
 | [CI · Docker](docs/ci-docker.md) | GitHub Actions, Dependabot, Docker |
 | [에디터 설정](docs/editor-setup.md) | IntelliJ, VS Code |
-| [백엔드에 필요한 API](docs/backend-api.md) | 일괄 배정·감사기록 등 추가 기능이 쓰는 API 계약(요청·응답·서버 규칙) |
+| [백엔드에 필요한 API](docs/backend-api.md) | 일괄 배정·감사기록·통계·내보내기 등 추가 기능이 쓰는 API 계약(요청·응답·서버 규칙) |
 | [시퀀스 다이어그램](docs/sequence-diagrams.md) | 로그인과 화면 이동, API 요청 경로(목업 어댑터), 관리자 배정 등록 |
 | [버전 기록](CHANGELOG.md) | 버전별 변경 내용 |
 

@@ -6,18 +6,40 @@ import { useSetAtom } from "jotai";
 
 import { Button } from "@components/button";
 import { Loading, Pagination } from "@components/common";
+import CsvExportButton from "@components/common/CsvExportButton";
 import { Select } from "@components/form";
 import { Grid, GridItem } from "@components/layout";
 import { NUMERIC_SORT_OPTION, PERIOD_SORT_OPTION } from "@constants/option";
 import { useAdjustState, useResponsive } from "@hooks";
 import { getSupplimentListData } from "@services/adminAssign";
 import { toastState } from "@stores";
+import { CsvColumn, okListResponse } from "@utils/csvUtil";
 
 import BulkAssignModal from "./BulkAssignModal";
 import NotAllottedTable from "./NotAllottedTable";
 import Table from "./Table";
 
 import type { AssignListItem } from "@types";
+
+/* 탭 이름 (내보내기 파일 이름) */
+const TAB_NAMES: Record<string, string> = {
+  "00": "미배정",
+  "01": "배정완료",
+  "02": "진행보류",
+  "03": "진행취소",
+};
+
+/* 내보내기 열: 화면 표의 칸에 채무자·의뢰자 사업자번호·배정일시를 더함 */
+const EXPORT_COLUMNS: CsvColumn<AssignListItem>[] = [
+  { header: "진행상태", value: (row) => row.statNm },
+  { header: "의뢰번호", value: (row) => row.rqstNo },
+  { header: "대출실행일", value: (row) => row.execDt },
+  { header: "의뢰자", value: (row) => row.clientNm },
+  { header: "사업자번호", value: (row) => row.bndBizNo },
+  { header: "채무자", value: (row) => row.dbtrNm },
+  { header: "의뢰일시", value: (row) => row.crtDtm },
+  { header: "배정일시", value: (row) => row.mtchDtm },
+];
 
 interface ListProps {
   tabIndex: string;
@@ -119,12 +141,10 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
   return (
     <>
       {spplListDataLoading && <Loading />}
-      <Grid
-        className={`_without-padding mt-6 mb-4 gap-y-3 ${isNotAllotted ? "justify-between" : "justify-end"}`}
-      >
-        {isNotAllotted && (
-          <GridItem mobile={12} tablet={12} desktop={4}>
-            <div className="flex items-center gap-x-4">
+      <Grid className="_without-padding mt-6 mb-4 gap-y-3 justify-between">
+        <GridItem mobile={12} tablet={12} desktop={4}>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {isNotAllotted && (
               <div className="w-[136px]">
                 <Button
                   shape="solid"
@@ -136,15 +156,37 @@ export default function List({ tabIndex, searchRqstNo, unMatchData }: ListProps)
                   일괄 배정
                 </Button>
               </div>
-              {/* 고른 건수가 바뀌면 스크린 리더에 알림 */}
+            )}
+            <div className="w-[136px]">
+              {/* 지금 탭·검색어·정렬 그대로 전체 목록을 내보냄 */}
+              <CsvExportButton
+                fileTitle={`배정관리_${TAB_NAMES[tabIndex] ?? "목록"}`}
+                columns={EXPORT_COLUMNS}
+                fetchPage={async (pageNum, pageSize) => {
+                  // 업무 실패한 쪽이 있으면 일부만 담긴 파일 대신 내보내기 전체를 실패로
+                  const { data } = okListResponse(
+                    await getSupplimentListData({
+                      pageNum,
+                      pageSize,
+                      searchRqstNo,
+                      tabSelection: tabIndex,
+                      sortOrder: selectedPeriod,
+                    }),
+                  );
+                  return { items: data?.mtchList ?? [], totalPages: data?.totalPages ?? 1 };
+                }}
+              />
+            </div>
+            {isNotAllotted && (
+              // 고른 건수가 바뀌면 스크린 리더에 알림
               <p role="status" className="text-sm text-ers-grayscale-90">
                 {selected.length
                   ? `${selected.length}건 선택됨`
                   : "배정할 의뢰를 고르면 일괄 배정할 수 있습니다."}
               </p>
-            </div>
-          </GridItem>
-        )}
+            )}
+          </div>
+        </GridItem>
         <GridItem mobile={12} tablet={12} desktop={3}>
           <div className="flex gap-x-4">
             <Select

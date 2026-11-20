@@ -726,8 +726,8 @@
     }
 }
 
-/* 감사기록 표: 좁은 화면에서는 가로로 스크롤, 변경 내용·사유는 줄바꿈 */
-._responsive-table-inner-wrapper._audit-table-wrapper {
+/* 감사기록·통계 표: 좁은 화면에서는 가로로 스크롤 (감사기록의 변경 내용·사유는 줄바꿈) */
+._responsive-table-inner-wrapper._scroll-table-wrapper {
     @apply overflow-x-auto;
 }
 
@@ -770,4 +770,41 @@
 /* 표 안 링크: 누를 수 있는 높이 24px 이상 (KWCAG 6.1.3) */
 ._responsive-table ._table-link {
     @apply inline-flex items-center min-h-6 text-sm text-ers-main-100 underline underline-offset-2;
+}
+
+/* 통계 표: 기간 칸은 넓게, 나머지는 같은 폭 */
+._responsive-table-inner-wrapper._has-thead ._responsive-table._statistics-table {
+    @apply min-w-[760px];
+
+    tr {
+        th:first-child {
+            @apply w-[220px];
+        }
+    }
+
+    /* 항목 이름이 길면(평균 처리 일수) 잘리지 않고 줄바꿈 */
+    thead th {
+        @apply whitespace-normal;
+    }
+
+    tbody th {
+        @apply font-normal;
+    }
+}
+
+/* 통계 요약 칸 (라벨 + 값, 색 없이 글자로만) */
+._statistics-summary {
+    @apply grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-6;
+
+    ._statistics-tile {
+        @apply flex flex-col gap-y-1 p-4 rounded-xl border border-ers-grayscale-40 bg-ers-grayscale-0;
+
+        dt {
+            @apply text-sm text-ers-grayscale-90;
+        }
+
+        dd {
+            @apply text-2xl font-semibold text-ers-grayscale-100 tabular-nums;
+        }
+    }
 }

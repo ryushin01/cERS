@@ -48,6 +48,11 @@ export const AD_REGISTRATION_METADATA = {
   DESCRIPTION: "등기관리 페이지",
 };
 
+export const AD_STATISTICS_METADATA = {
+  TITLE: "통계 - 전자등기 관리 시스템 어드민",
+  DESCRIPTION: "기간별 처리 건수·처리 시간·반려율 통계 페이지",
+};
+
 export const AD_AUDIT_METADATA = {
   TITLE: "감사기록 - 전자등기 관리 시스템 어드민",
   DESCRIPTION: "누가 언제 무엇을 바꿨는지 조회하는 감사기록 페이지",

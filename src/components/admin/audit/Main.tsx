@@ -179,7 +179,7 @@ export default function Main() {
 
       {/* 좁은 화면에서는 가로로 스크롤되므로 키보드로도 초점을 받아 움직일 수 있게 함 */}
       <div
-        className="_responsive-table-inner-wrapper _has-thead _audit-table-wrapper"
+        className="_responsive-table-inner-wrapper _has-thead _scroll-table-wrapper"
         role="region"
         aria-label="감사기록 표"
         tabIndex={0}
