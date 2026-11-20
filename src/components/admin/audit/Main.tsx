@@ -26,9 +26,12 @@ export const AUDIT_PERIODS = [
 ];
 const ALL_PERIOD = AUDIT_PERIODS.length - 1;
 const PAGE_SIZE = 10;
+const LOAD_ERROR_MESSAGE = "감사기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
 
 type AuditQuery = { periodIndex: number; rqstNo: string; membNm: string };
 const INITIAL_QUERY: AuditQuery = { periodIndex: ALL_PERIOD, rqstNo: "", membNm: "" };
+const isSameQuery = (a: AuditQuery, b: AuditQuery) =>
+  a.periodIndex === b.periodIndex && a.rqstNo === b.rqstNo && a.membNm === b.membNm;
 
 /* 기간 버튼 → 조회 기간 (YYYYMMDD) */
 const periodRange = (periodIndex: number) => {
@@ -44,7 +47,8 @@ const changeText = ({ bfrStatNm, aftStatNm }: AuditLogItem) =>
 /**
  * @name Main
  * @description 관리자 감사기록: 누가 언제 어떤 의뢰를 어떻게 바꿨는지 최근 순으로 조회합니다.
- *              - 조건(기간·의뢰번호·처리자)은 검색 버튼을 눌러야 적용
+ *              - 조건(기간·의뢰번호·처리자)은 검색 버튼을 눌러야 적용 (같은 조건으로 다시 누르면 다시 조회)
+ *              - 업무 실패 응답은 오류로 알리고 "총 0건" 대신 실패 안내를 보여 줌
  *              - 의뢰번호는 등기관리 상세(문서·진행 이력)로 이동하는 링크
  *              - 좁은 화면에서는 표를 가로로 움직여 봄 (스크롤 영역은 키보드로도 초점을 받음)
  */
@@ -57,16 +61,20 @@ export default function Main() {
   /* 조건이 바뀌면 첫 페이지부터 */
   useAdjustState([query], () => setPage(1));
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin-audit-list", query, page],
-    queryFn: async () =>
-      await getAuditList({
+    queryFn: async () => {
+      const response = await getAuditList({
         ...periodRange(query.periodIndex),
         searchRqstNo: query.rqstNo,
         searchMembNm: query.membNm,
         pageNum: page,
         pageSize: PAGE_SIZE,
-      }),
+      });
+      // 업무 실패(code "99" 등)는 "총 0건"으로 보이지 않게 오류로 돌려 토스트로 알림
+      if (response.code !== "00") throw new Error(response.msg || LOAD_ERROR_MESSAGE);
+      return response;
+    },
     select: (response) => response.data,
     // 새 페이지를 불러오는 동안 앞의 결과를 그대로 보여 줌
     placeholderData: (previous) => previous,
@@ -76,7 +84,13 @@ export default function Main() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setQuery({ ...draft, rqstNo: draft.rqstNo.trim(), membNm: draft.membNm.trim() });
+    const next = { ...draft, rqstNo: draft.rqstNo.trim(), membNm: draft.membNm.trim() };
+    // 같은 조건으로 첫 페이지를 다시 검색하면 조회 key가 같으므로 직접 다시 조회 (실패한 조회 재시도)
+    if (page === 1 && isSameQuery(next, query)) {
+      void refetch();
+      return;
+    }
+    setQuery(next);
   };
 
   const handleReset = () => {
@@ -158,7 +172,9 @@ export default function Main() {
       </Form>
 
       <p role="status" className="mb-3 text-sm text-ers-grayscale-90">
-        {`총 ${total}건`}
+        {isError && !data
+          ? "감사기록을 불러오지 못했습니다. 검색을 눌러 다시 시도해 주세요."
+          : `총 ${total}건`}
       </p>
 
       {/* 좁은 화면에서는 가로로 스크롤되므로 키보드로도 초점을 받아 움직일 수 있게 함 */}
@@ -181,7 +197,11 @@ export default function Main() {
               <tr>
                 <td colSpan={6}>
                   <Typography kind="body-medium">
-                    {isLoading ? "불러오는 중입니다." : "조건에 맞는 기록이 없습니다."}
+                    {isLoading
+                      ? "불러오는 중입니다."
+                      : isError
+                        ? "감사기록을 불러오지 못했습니다."
+                        : "조건에 맞는 기록이 없습니다."}
                   </Typography>
                 </td>
               </tr>

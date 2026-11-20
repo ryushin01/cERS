@@ -97,18 +97,30 @@ const auditLog = () =>
   REGISTRATIONS.flatMap(({ rqstNo, statHistList }) =>
     statHistList.map((history, index) => {
       const before = statHistList[index + 1]?.statNm ?? "";
+      const order = statHistList.length - index; // 이 의뢰의 몇 번째 이력인지 (클수록 최근)
       return {
-        seq: `${rqstNo}-${statHistList.length - index}`,
-        crtDtm: history.crtTm ? `${history.crtDtm} ${history.crtTm}` : history.crtDtm,
-        crtMembNm: history.crtMembNm,
-        rqstNo,
-        actnNm: before ? "상태 변경" : "의뢰 등록",
-        bfrStatNm: before,
-        aftStatNm: history.statNm,
-        rsnCnts: history.procRsnCnts,
+        order,
+        item: {
+          seq: `${rqstNo}-${order}`,
+          crtDtm: history.crtTm ? `${history.crtDtm} ${history.crtTm}` : history.crtDtm,
+          crtMembNm: history.crtMembNm,
+          rqstNo,
+          actnNm: before ? "상태 변경" : "의뢰 등록",
+          bfrStatNm: before,
+          aftStatNm: history.statNm,
+          rsnCnts: history.procRsnCnts,
+        },
       };
     }),
-  ).sort((a, b) => b.crtDtm.localeCompare(a.crtDtm) || b.seq.localeCompare(a.seq));
+  )
+    // 같은 시각이면 의뢰번호, 같은 의뢰면 이력 순서(숫자)로 최근이 앞
+    .sort(
+      (a, b) =>
+        b.item.crtDtm.localeCompare(a.item.crtDtm) ||
+        b.item.rqstNo.localeCompare(a.item.rqstNo) ||
+        b.order - a.order,
+    )
+    .map(({ item }) => item);
 
 /* 단건 배정 화면에서 필수인 배정 정보 */
 const REQUIRED_ASSIGN_FIELDS: [keyof MockRegistration, string][] = [
@@ -264,7 +276,8 @@ const routes: Route[] = [
         target.execDt = toDashedDate(body.execDt) || target.execDt;
         if (target.statCd === PROC_STAT_CD.SUPPLEMENT) {
           target.procRsnCnts = "";
-          changeStatus(target, PROC_STAT_CD.REQUEST);
+          // 다시 제출한 것은 금융기관 (감사기록의 처리자)
+          changeStatus(target, PROC_STAT_CD.REQUEST, { crtMembNm: target.clientNm });
         }
       }
       return ok(null, "수정이 완료되었습니다.");

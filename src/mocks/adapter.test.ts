@@ -154,6 +154,14 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
       execDt: "2099-12-31",
       procRsnCnts: "",
     });
+    // 감사기록의 처리자는 다시 제출한 금융기관
+    const { data: audit } = await request(
+      "get",
+      "/api/admin/audit/list?searchRqstNo=DEMO-002399&pageNum=1&pageSize=1",
+    );
+    expect(audit.auditList[0]).toMatchObject({ aftStatNm: "등기의뢰", crtMembNm: data.clientNm });
+    expect(data.clientNm).toBeTruthy();
+    expect(data.clientNm).not.toBe("관리자");
   });
 
   it("변경 내용은 sessionStorage에 저장되어 새로고침(모듈 재로딩) 후에도 유지된다", async () => {
@@ -274,6 +282,25 @@ describe("mockAdapter (데모 모드 목업 API)", () => {
       "/api/admin/audit/list?fromDate=20990101&toDate=20991231&pageNum=1&pageSize=10",
     );
     expect(future.totalElements).toBe(0);
+  });
+
+  it("감사 기록: 같은 시각에 여러 번 바뀌어도 한 의뢰의 기록은 최근이 앞이다(10번째 이후 포함)", async () => {
+    const request = await loadAdapter();
+    const { REGISTRATIONS, changeStatus } = await import("./data");
+    const target = REGISTRATIONS.find((item) => item.rqstNo === "DEMO-002400")!;
+    for (let order = 1; order <= 10; order += 1) {
+      changeStatus(target, order % 2 ? PROC_STAT_CD.HOLD : PROC_STAT_CD.REQUEST, {
+        procRsnCnts: `순서 ${order}`,
+      });
+    }
+
+    const { data } = await request(
+      "get",
+      "/api/admin/audit/list?searchRqstNo=DEMO-002400&pageNum=1&pageSize=50",
+    );
+    expect(data.auditList.slice(0, 10).map((item: { rsnCnts: string }) => item.rsnCnts)).toEqual(
+      Array.from({ length: 10 }, (_, index) => `순서 ${10 - index}`),
+    );
   });
 
   it("등록되지 않은 API는 404로 거절한다", async () => {

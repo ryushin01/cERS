@@ -3,12 +3,19 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PROC_STAT_CD } from "@constants/code";
+import { getAuditList } from "@services/adminAudit";
 import { changeStatus, REGISTRATIONS } from "@/mocks/data";
 import { mockDesktopMatchMedia, renderWithProviders } from "@/test/renderWithProviders";
 
 import Main from "./Main";
 
 /* 통합 테스트: 관리자 감사기록을 데모 목업 데이터(진행 이력)로 렌더링 */
+
+/* 기본은 실제 요청(목업 API), 실패 응답이 필요한 테스트에서만 한 번 바꿈 */
+vi.mock("@services/adminAudit", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@services/adminAudit")>();
+  return { ...actual, getAuditList: vi.fn(actual.getAuditList) };
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -94,5 +101,24 @@ describe("감사기록", () => {
         ),
       { timeout: 3000 },
     );
+  });
+  it("업무 실패 응답은 0건이 아니라 실패로 알리고, 같은 조건으로 검색을 누르면 다시 조회한다", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getAuditList).mockResolvedValueOnce({ code: "99", msg: "조회 실패", data: null });
+    renderWithProviders(<Main />);
+
+    await waitFor(
+      () =>
+        expect(screen.getByRole("status")).toHaveTextContent(
+          "감사기록을 불러오지 못했습니다. 검색을 눌러 다시 시도해 주세요.",
+        ),
+      { timeout: 3000 },
+    );
+    expect(screen.getByText("감사기록을 불러오지 못했습니다.")).toBeInTheDocument();
+
+    // 조건을 바꾸지 않고 검색 → 다시 조회
+    await user.click(screen.getByRole("button", { name: "검색" }));
+    await waitFor(() => expect(rows()).toHaveLength(10), { timeout: 3000 });
+    expect(screen.getByRole("status")).toHaveTextContent(`총 ${historyCount()}건`);
   });
 });
