@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # cERS 프로젝트 규칙
 
 ## Next.js 버전 (레거시 유지)
