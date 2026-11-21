@@ -11,6 +11,25 @@
   - 목업이 없는 API는 404로 응답해 기존 오류 처리(토스트) 흐름을 그대로 따릅니다.
 - Storybook도 같은 목업 어댑터를 사용하므로, 화면 단위 스토리는 실제 데이터 흐름(TanStack Query → services → 목업 API)으로 렌더링됩니다.
 
+## 오프라인에서 실행
+
+인터넷 없이, 환경 변수(`.env`) 없이도 모든 화면이 데모 데이터로 뜹니다.
+
+```bash
+pnpm install
+pnpm run dev                     # 또는
+pnpm run build && pnpm start     # Storybook은 /storybook
+```
+
+| 외부 의존 | 오프라인 처리 |
+|---|---|
+| 백엔드 API | 데모 모드(기본값)에서 목업 어댑터가 응답하므로 네트워크를 쓰지 않음 |
+| 글꼴 Pretendard(예전 jsDelivr CDN) | `pretendard` 패키지(SIL OFL 1.1)의 가변 글꼴 동적 서브셋을 앱 빌드에 포함. Storybook은 `staticDirs`로 `/storybook/fonts/pretendard`에 함께 배포 |
+| 주소검색(다음·카카오 우편번호 스크립트 `t1.daumcdn.net`) | 스크립트를 불러오지 못하거나 8초 안에 준비되지 않으면 모달에 예시 주소 목록(`OFFLINE_ADDRESS_SAMPLES`)을 보여 주고 `role="status"`로 "오프라인 예시 주소로 표시 중"을 알림. 고르면 실제 검색 결과와 같은 칸이 채워짐 |
+| 분석·오류 수집 | 없음 |
+
+검증은 `e2e/offline.spec.ts`가 합니다. localhost 밖의 요청을 모두 막은 채(route abort) 로그인·금융기관·관리자 모든 화면과 Storybook이 내용과 함께 뜨는지, 외부 요청이 0건인지, 글꼴이 로컬에서 불러와졌는지, 접근성(axe)을 확인하고 주소검색 대체 흐름을 끝까지 따라갑니다.
+
 ## 둘러보기
 
 1. 개발 서버를 실행합니다. ([시작하기](../README.md#시작하기) 참고)
