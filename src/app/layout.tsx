@@ -6,6 +6,8 @@ import { DESCRIPTION, FAVICON, OG_IMAGE, SITE_URL, TITLE } from "@constants/meta
 
 import type { Metadata, Viewport } from "next";
 
+/* Pretendard 글꼴은 CDN이 아니라 패키지에서 함께 빌드합니다(오프라인에서도 같은 글꼴) */
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "@styles/globals.css";
 
 export const metadata: Metadata = {
@@ -36,12 +38,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <link
-          rel="stylesheet"
-          as="style"
-          crossOrigin="anonymous"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
-        />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" sizes="192x192" href="/images/logo/logo-192x192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/images/logo/logo-512x512.png" />

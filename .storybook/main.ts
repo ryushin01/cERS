@@ -22,7 +22,18 @@ const config: StorybookConfig = {
     name: "@storybook/nextjs-vite",
     options: {},
   },
-  staticDirs: [{ from: "../public/logo.svg", to: "/favicon.svg" }],
+  staticDirs: [
+    { from: "../public/logo.svg", to: "/favicon.svg" },
+    // Pretendard 글꼴(가변 글꼴 동적 서브셋)을 CDN 대신 함께 배포합니다. preview-head·manager-head가 불러옵니다.
+    {
+      from: "../node_modules/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css",
+      to: "/fonts/pretendard/pretendardvariable-dynamic-subset.css",
+    },
+    {
+      from: "../node_modules/pretendard/dist/web/variable/woff2-dynamic-subset",
+      to: "/fonts/pretendard/woff2-dynamic-subset",
+    },
+  ],
   core: {
     disableTelemetry: true,
   },

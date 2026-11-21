@@ -1,7 +1,7 @@
 # cERS - 전자등기 관리 시스템
 
 [![CI](https://github.com/ryushin01/cERS/actions/workflows/ci.yml/badge.svg)](https://github.com/ryushin01/cERS/actions/workflows/ci.yml)
-![version](https://img.shields.io/badge/version-2.6.1-113662)
+![version](https://img.shields.io/badge/version-2.7.0-113662)
 ![Storybook](https://img.shields.io/badge/Storybook-10-FF4785?logo=storybook&logoColor=white)
 
 금융기관·관리자용 부동산 전자등기 관리 웹 애플리케이션의 프론트엔드입니다. **cERS**는 **c**ore **E**lectronic **R**egistration **S**ystem의 줄임말입니다.
@@ -94,6 +94,8 @@ pnpm run dev    # https://localhost:4000
 | `pnpm run test:e2e` | 프로덕션 빌드의 실제 화면 검사 (먼저 `build` 필요) |
 
 전체 명령과 환경 변수는 [개발 가이드](docs/development.md)를 참고하세요.
+
+**오프라인·`.env` 없이 실행:** `.env` 없이 `pnpm install` → `pnpm run dev`, 또는 `pnpm run build` → `pnpm start`만으로 데모 데이터가 나옵니다. 글꼴(Pretendard)은 패키지에서 함께 빌드하고, 외부 서비스가 필요한 주소검색(다음 우편번호)은 불러오지 못하면 예시 주소로 대체합니다. 자세한 내용은 [데모 모드 — 오프라인](docs/demo-mode.md#오프라인에서-실행)을 참고하세요.
 
 ## 프로젝트 구조
 

@@ -11,7 +11,7 @@ addons.setConfig({
     brandTarget: "_self",
     colorPrimary: "#113662",
     colorSecondary: "#0b56a7",
-    fontBase: '"Pretendard", system-ui, sans-serif',
+    fontBase: '"Pretendard Variable", "Pretendard", system-ui, sans-serif',
     appBg: "#f8f8fa",
     appBorderColor: "#ededed",
     barSelectedColor: "#113662",

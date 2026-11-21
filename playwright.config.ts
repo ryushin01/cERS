@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 4100;
+/* 기본 4100. 다른 서버와 겹치면 E2E_PORT로 바꿔 실행 */
+const PORT = Number(process.env.E2E_PORT ?? 4100);
 
 /**
  * E2E 테스트 (pnpm test:e2e)
