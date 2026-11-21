@@ -10,7 +10,7 @@
 
 ## 2. 기술 스택과 구조
 
-- Next.js 15(App Router, 레거시 유지), React 19, TypeScript 5.7, TanStack Query 5, jotai, axios, js-cookie, Tailwind CSS 3, antd(파일 업로드), swiper, react-datepicker, Storybook 10
+- Next.js 15(App Router, 레거시 유지), React 19, TypeScript 5.7, TanStack Query 5, jotai, axios, js-cookie, Tailwind CSS 3, antd(파일 업로드), swiper, react-datepicker, react-daum-postcode(주소검색), Pretendard(`pretendard` 패키지, CDN 없음), Storybook 10
 - 구조(FSD 아님, 그대로 유지): `src/app`(라우트: `admin`, `financial`, `lawyer`), `components`(화면별·공통, 옆에 `*.stories.tsx`), `constants`, `hooks`, `mocks`(데모 목업 데이터·axios 어댑터), `services`(공통 axios 인스턴스), `stores`(jotai), `styles`, `types`, `utils`, `middleware.ts`(사용자 유형별 접근 경로 제어)
 - 단위 테스트(`*.test.ts(x)`)와 스토리는 대상 파일과 같은 폴더에 둡니다. FSD는 새 프로젝트의 기준이며 cERS 코드는 옮기지 않습니다.
 
@@ -31,12 +31,13 @@
 | `pnpm test` / `pnpm test:coverage`    | 단위(Vitest + Testing Library, fast-check)                       |
 | `pnpm test:storybook`                 | 모든 스토리를 Chromium에서 렌더링하고 axe                        |
 | `pnpm build`                          | Storybook을 `public/storybook`에 빌드한 뒤 앱 빌드(데모 모드)    |
-| `pnpm test:e2e`                       | 프로덕션 빌드 E2E(폭별 넘침, axe, 키보드, 조작 크기, 업무 흐름)  |
+| `pnpm test:e2e`                       | 프로덕션 빌드 E2E(폭별 넘침, axe, 키보드, 조작 크기, 업무 흐름, 오프라인). 포트 기본 4100, 겹치면 `E2E_PORT` |
 | `pnpm screenshots`                    | README 스크린샷 다시 찍기(먼저 `build`)                          |
 
 - CI(`.github/workflows/ci.yml`): `check` 작업(install → lint → format:check → typecheck → test → Playwright 설치 → test:storybook → build → test:e2e)과 `docker` 작업(운영 이미지 빌드 후 `/`와 `/storybook/index.html` 응답 확인)
 - pre-commit(husky): 스테이징 파일 lint-staged(eslint --fix, prettier) → `pnpm typecheck` → `pnpm test`
 - 개발 서버와 E2E·빌드가 같은 `.next`를 쓰므로 개발 서버를 켠 채 빌드하거나 E2E를 돌리지 않습니다. 화면을 추가하면 `e2e/helpers.ts`의 `PAGES`에 넣습니다.
+- 오프라인: 외부 요청 없이 모든 화면이 떠야 합니다(`e2e/offline.spec.ts`가 localhost 밖 요청을 모두 막고 확인). 글꼴은 CDN 대신 `pretendard` 패키지, 다음 우편번호 스크립트를 못 불러오면 주소검색 모달이 예시 주소로 대신합니다. 외부 스크립트·CDN을 새로 쓰지 않습니다.
 - 테스트 원칙(Testing Library): 구현 세부가 아니라 사용자가 보는 동작을 검사하고, 요소는 역할·이름(`getByRole`)으로 찾습니다. 단위·컴포넌트는 Vitest + React Testing Library(jsdom), 스토리는 Vitest 브라우저 모드(`@storybook/addon-vitest`, a11y 애드온), 화면 흐름은 Playwright E2E, 접근성은 axe(`@axe-core/playwright`, Storybook a11y)로 검사합니다. 버그를 고치면 고치기 전에 실패하는 테스트를 함께 넣습니다.
 
 ## 5. 코드 스타일
@@ -44,10 +45,9 @@
 - Prettier(`.prettierrc.json`): 너비 100, 큰따옴표, 세미콜론, trailing comma all, CSS는 들여쓰기 4. 문서(`*.md`)는 손으로 맞춘 표 때문에 Prettier에서 제외합니다.
 - import 순서(`simple-import-sort`): `react` → `next` → 외부 패키지 → 내부 alias(`@components` 등) → 상대 경로 → `import type` → CSS, 그룹 사이 빈 줄. `tsconfig.json`에 alias를 더하면 `eslint.config.mjs`의 `INTERNAL_ALIASES`에도 더합니다.
 - 공통 부품 사용: 화면 크기는 `useResponsive`, 탭은 `TabGroup`, 하나를 고르는 버튼 묶음은 `ButtonGroup`(`aria-pressed`), 대화상자 초점은 `useDialog`, 표는 `TableHead`·`BodyCell`·`InfoTableSection`, 사유 모달은 `ProcessReasonModal`, 금액은 `utils/amountUtil`, 중복 제출은 `useSubmitLock`, 저장 요청은 `mutate(데이터)`로 직접 넘깁니다. 로그인 정보는 `AUTH_STORAGE_KEY`, 그 밖의 저장소 키는 `src/constants/storage.ts`에 둡니다.
-- 접근성(KWCAG 2.2, WAI-ARIA 1.2): 네이티브 HTML 우선, 역할을 주면 키보드 동작까지 구현, 텍스트 대비 4.5:1, 모든 기능 키보드 가능·초점 표시, 누를 수 있는 컨트롤 24×24px 이상(권장 44, 못 키우면 `::after`로 영역만 넓힘), 보이는 라벨이 없는 `Select`·`InputField`는 `ariaLabel`, `IconButton`은 이름 필수, 오류는 `aria-describedby`로 연결하고 초점 이동, 바뀌는 안내는 `role="status"`. 숨긴 입력은 `display: none`이 아니라 `sr-only`. axe 통과가 KWCAG 준수는 아니므로 새 화면은 직접 점검합니다.
+- 접근성(WCAG 2.2·KWCAG 2.2, WAI-ARIA 1.2): 네이티브 HTML 우선, 역할을 주면 키보드 동작까지 구현, 텍스트 대비 4.5:1, 모든 기능 키보드 가능·초점 표시, 누를 수 있는 컨트롤 24×24px 이상(권장 44, 못 키우면 `::after`로 영역만 넓힘), 보이는 라벨이 없는 `Select`·`InputField`는 `ariaLabel`, `IconButton`은 이름 필수, 오류는 `aria-describedby`로 연결하고 초점 이동, 바뀌는 안내는 `role="status"`. 숨긴 입력은 `display: none`이 아니라 `sr-only`. axe 통과가 KWCAG 준수는 아니므로 새 화면은 직접 점검합니다. 자동 검사는 `eslint-config-next`(`next/core-web-vitals`)에 든 jsx-a11y 규칙과 axe(Storybook·Playwright)이며, 표준과 다른 점으로 jsx-a11y recommended 전체는 켜지 않았습니다.
 - 테스트는 실행 PC의 시간대와 무관하게 같은 결과가 나오게 쓰고, 서버 코드 테스트는 맨 위에 `// @vitest-environment node`를 적습니다.
 - TypeScript strict(`tsconfig.json`의 `"strict": true`)를 유지하고 `any`·`as` 단언·`@ts-ignore`를 피합니다.
-- 접근성 기준은 WCAG 2.2와 KWCAG 2.2이며, 자동 검사는 `eslint-config-next`(`next/core-web-vitals`)에 든 jsx-a11y 규칙과 axe(Storybook·Playwright)로 합니다. 표준과 다른 점: jsx-a11y recommended 전체는 켜지 않았습니다.
 
 ## 6. Git·PR
 
@@ -72,8 +72,11 @@
 
 ## 8. 보안·주의사항
 
-- 비밀값과 `.env*` 파일을 커밋하지 않습니다. 데모에 실제 API 주소나 유료 키를 넣지 않습니다. 목업 데이터에는 고객사 정보·연락처·로고·실제 문서를 넣지 않고 예시 값만 씁니다.
-- **Next.js 15 유지(레거시):** Next.js 16으로 올리지 않습니다. 사용자 유형별 접근 제어는 Next.js 15의 `src/middleware.ts`로 두고 16의 `proxy.ts`로 바꾸지 않습니다. `next`와 `eslint-config-next`는 같은 15.x로 맞추고 15 계열의 보안 패치만 받습니다(Dependabot도 메이저 제안 안 함). 15 계열 보안 패치가 끊기면 사용자와 상의해 업그레이드를 계획합니다. 경위: v2.1.0에서 16으로 올렸다가 v2.2.0에서 되돌림.
+- 절대 금지: 비밀값을 `NEXT_PUBLIC_*`에 넣기(클라이언트 번들에 들어감), `.env*` 파일 커밋, `eslint-disable`·`--no-verify`로 검사·pre-commit 우회, `main` 직접 푸시.
+- 먼저 묻기: 새 런타임 의존성 추가, 빌드 설정(`next.config.ts`·`vercel.json`·Dockerfile·CI) 변경.
+- CI·배포·릴리스 상태는 명령 결과(`gh run`, `gh release`, `curl`)로 확인한 뒤에만 말합니다.
+- 데모에 실제 API 주소나 유료 키를 넣지 않습니다. 목업 데이터에는 고객사 정보·연락처·로고·실제 문서를 넣지 않고 예시 값만 씁니다.
+- **Next.js 15 유지(레거시):** Next.js 16으로 올리지 않습니다(`CLAUDE.md`에도 같은 규칙). 사용자 유형별 접근 제어는 Next.js 15의 `src/middleware.ts`로 두고 16의 `proxy.ts`로 바꾸지 않습니다. `next`와 `eslint-config-next`는 같은 15.x로 맞추고 15 계열의 보안 패치만 받습니다(Dependabot도 메이저 제안 안 함). 15 계열 보안 패치가 끊기면 사용자와 상의해 업그레이드를 계획합니다. 경위: v2.1.0에서 16으로 올렸다가 v2.2.0에서 되돌림.
 - 그 밖의 고정: `axios` 정확한 버전, `@types/node` 22.x(실행 환경 Node 22), Dependabot은 같은 메이저 안의 패치·마이너만, 출시 14일 지난 버전만 제안합니다.
 - 엑셀(CSV) 내보내기의 수식 주입 방지(`=`·`+`·`-`·`@`·탭·CR·LF로 시작하는 값 앞에 `'`)를 유지합니다.
 
