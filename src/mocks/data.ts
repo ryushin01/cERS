@@ -73,6 +73,37 @@ const ADDRESSES = [
   },
 ];
 
+/**
+ * 주소검색 대체 목록: 다음 우편번호 서비스(외부 스크립트)를 불러오지 못할 때(오프라인 등) 고를 수 있는 예시 주소.
+ * 우편번호 검색 결과(react-daum-postcode의 Address)에서 화면이 쓰는 값만 둡니다.
+ */
+export const OFFLINE_ADDRESS_SAMPLES = [
+  {
+    roadAddress: "서울특별시 중구 예시로 12",
+    buildingName: "예시아파트",
+    jibunAddress: "서울특별시 중구 예시동 101-1",
+    autoJibunAddress: "",
+  },
+  {
+    roadAddress: "서울특별시 성북구 샘플로 34",
+    buildingName: "샘플힐스",
+    jibunAddress: "서울특별시 성북구 샘플동 22-3",
+    autoJibunAddress: "",
+  },
+  {
+    roadAddress: "경기도 성남시 분당구 데모로 56",
+    buildingName: "데모타워",
+    jibunAddress: "경기도 성남시 분당구 데모동 7",
+    autoJibunAddress: "",
+  },
+  {
+    roadAddress: "인천광역시 연수구 가상로 78",
+    buildingName: "가상빌",
+    jibunAddress: "인천광역시 연수구 가상동 45-6",
+    autoJibunAddress: "",
+  },
+];
+
 /* 상태 분포: 의뢰 목록의 4개 탭과 현황조회 필터가 모두 채워지도록 구성 */
 const STATUS_SEQUENCE = [
   PROC_STAT_CD.REQUEST,
